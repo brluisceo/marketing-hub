@@ -1,0 +1,8 @@
+node_modules
+.next
+# Qualquer arquivo de ambiente tem segredos; só o exemplo vai para o git.
+.env*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
