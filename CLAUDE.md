@@ -147,7 +147,7 @@ curl -s -w "\nHTTP %{http_code}\n" -H "X-Hub-Key: $K" "https://n8n.absgroup.com.
 
 ## Publicação
 
-O destino é um **servidor próprio** (decisão de 06/11/2026; não é mais a Vercel), cuidado pela equipe de hospedagem contratada, com o domínio final `marketinghub.contadorceo.com.br` (o site fica nesse domínio, mas o login continua aceitando só e-mails @absgroup.com.br). A pasta **ainda não é um repositório git**. O `.gitignore` já exclui `.env*`. Passos no [README.md](README.md). Commit, push e deploy só quando o usuário pedir. O [README.md](README.md) ainda descreve a Vercel; reescrever a seção de publicação quando for publicar.
+O destino é um **servidor próprio** (decisão de 06/11/2026; não é mais a Vercel), cuidado pela equipe de hospedagem contratada, com o domínio final `marketinghub.contadorceo.com.br` (o site fica nesse domínio, mas o login continua aceitando só e-mails @absgroup.com.br). Repositório git **privado**: https://github.com/brluisceo/marketing-hub (branch `main`, primeiro envio em 06/11/2026). O `.gitignore` exclui qualquer `.env*` (menos `.env.example`): confira com `git diff --cached --name-only` antes de cada commit. Passos no [README.md](README.md). Commit, push e deploy só quando o usuário pedir. O [README.md](README.md) ainda descreve a Vercel; reescrever a seção de publicação quando for publicar.
 
 No servidor: Node 20+, `npm ci && npm run build && npm start` mantido por um gerenciador de processos (systemd ou PM2), atrás de um proxy reverso (nginx/Caddy) com HTTPS. O proxy precisa **sobrescrever** `X-Forwarded-For` com o IP real (o registro de `acessos` usa esse cabeçalho) e repassar o `Host`. `APP_URL` obrigatório. Como o servidor tem IP fixo, o banco definitivo pode aceitar conexões só desse IP e do n8n.
 
