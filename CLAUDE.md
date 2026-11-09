@@ -159,6 +159,7 @@ No servidor: Node 20+, `npm ci && npm run build && npm start` mantido por um ger
 
 ## Pendências conhecidas
 
+- **Tráfego pago (outra pessoa implementa, desde 09/11/2026):** trabalho na branch `trafego-pago`, que entra na `main` só por Pull Request revisado. Guia para quem implementa: [docs/trafego-pago.md](docs/trafego-pago.md) (atualize junto se mudar algo que ele cita: arquivos, fluxos, variáveis). O repositório é de conta pessoal no plano gratuito, então a `main` não tem proteção automática: a regra é combinada.
 - **Impulsionamentos:** integrar a Marketing API (anúncios ligados ao post por `creative.effective_instagram_media_id`, métricas por `insights?level=ad`) numa tabela nova (ex.: HUB_ANUNCIOS) e mostrar orgânico + pago. A credencial atual "Meta Insights Hub." é Facebook Graph API; verificar se o token tem `ads_read`.
 - **Quase tempo real:** coleta de 1–5 min só para posts recentes e cache menor no site. Cuidado com o limite de chamadas da Meta e com o crescimento de HUB_METRICAS_SNAPSHOTS.
 - **Visualizações do perfil por período** (bate com o app), a partir de HUB_CONTAS_DIARIO. Precisa de histórico; avaliar preencher dias passados via API.
