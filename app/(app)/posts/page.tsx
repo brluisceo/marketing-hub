@@ -10,12 +10,12 @@ export const metadata = { title: 'Posts · Marketing HUB' };
 
 type SP = { mes?: string; formato?: string; ordem?: string; dir?: string; busca?: string; pagina?: string; sel?: string };
 
-const ORDENS: [string, string][] = [['alcance', 'Alcance'], ['engajamento_pct', 'Engajamento'], ['interacoes', 'Interações'], ['compartilhamentos', 'Compartilhamentos'], ['salvamentos', 'Salvamentos'], ['publicado_em', 'Mais recentes']];
+const ORDENS: [string, string][] = [['publicado_em', 'Mais recentes'], ['alcance', 'Alcance'], ['engajamento_pct', 'Engajamento'], ['interacoes', 'Interações'], ['compartilhamentos', 'Compartilhamentos'], ['salvamentos', 'Salvamentos']];
 
 export default async function Posts({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const mes = /^\d{4}-\d{2}$/.test(sp.mes || '') ? sp.mes! : mesAtual();
-  const ordem = ORDENS.some(([v]) => v === sp.ordem) ? sp.ordem! : 'alcance';
+  const ordem = ORDENS.some(([v]) => v === sp.ordem) ? sp.ordem! : 'publicado_em';
   let lista: PostsResp, o: Overview;
   try {
     [lista, o] = await Promise.all([

@@ -84,7 +84,7 @@ Para não brigar com o trabalho que segue em paralelo na `main`, coloque o máxi
 | Consultas ao banco | arquivo novo, ex.: `lib/trafego.ts`, no mesmo estilo de [lib/dados.ts](../lib/dados.ts) |
 | Tipos das respostas | no fim de [lib/types.ts](../lib/types.ts) |
 | Dados de exemplo | em [lib/mock.ts](../lib/mock.ts) ou num arquivo novo |
-| Entrada única dos dados | acrescente `hub.trafego...` em [lib/hub.ts](../lib/hub.ts), com o mesmo cache de 120 s (`doBanco`) e o mesmo desvio para o mock |
+| Entrada única dos dados | acrescente `hub.trafego...` em [lib/hub.ts](../lib/hub.ts), com o mesmo cache de 60 s (`doBanco`) e o mesmo desvio para o mock |
 | Números, %, datas | só pelas funções de [lib/format.ts](../lib/format.ts) |
 | Estilos | reaproveite as classes de [app/globals.css](../app/globals.css). Classes novas vão num bloco `/* Tráfego pago */` no fim do arquivo |
 | Gráficos | CSS/SVG feitos à mão, como [components/Bars.tsx](../components/Bars.tsx) e [components/Strip.tsx](../components/Strip.tsx) |

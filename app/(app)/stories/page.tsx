@@ -46,7 +46,7 @@ export default async function Stories({ searchParams }: { searchParams: Promise<
             <p className="notice">A coleta de Stories começou em {dataCurta(r.coleta_desde)}. A Meta só entrega os números enquanto o Story está no ar (24 h), por isso não há dados de antes dessa data.</p>
           ) : null}
           {itens.length === 0 ? (
-            <div className="empty"><h2>Nenhum story neste mês</h2><p>Os Stories aparecem aqui até 15 minutos depois de publicados.</p></div>
+            <div className="empty"><h2>Nenhum story neste mês</h2><p>Os Stories aparecem aqui até 5 minutos depois de publicados.</p></div>
           ) : (
             <div className="table-wrap">
               <table className="table">

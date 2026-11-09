@@ -333,6 +333,26 @@ h1, h2, p { margin: 0; }
 .hub-ponto-azul { background: var(--accent); }
 .hub-ponto-cinza { background: #aeaeb2; }
 
+/* Página Sobre */
+.sobre { max-width: 820px; gap: 20px; }
+.sobre p, .sobre li, .sobre dd { color: var(--text-2); line-height: 1.55; }
+.sobre p { margin: 0; }
+.sobre ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.sobre .mini-table td { vertical-align: top; padding-right: 16px; color: var(--text-2); line-height: 1.45; }
+.sobre .mini-table td.strong { color: var(--text); }
+.sobre-quando { white-space: nowrap; }
+.sobre-termos { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.sobre-termos > div { display: grid; grid-template-columns: minmax(120px, 160px) 1fr; gap: 12px; }
+.sobre-termos dt { font-weight: 500; color: var(--text); }
+.sobre-termos dd { margin: 0; }
+@media (max-width: 560px) { .sobre-termos > div { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Faixa "Dados atualizados há X min · próxima em Y min" */
+.atualizacao { margin: 0; display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.atualizacao > span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atualizacao-faixa { padding: 6px 24px; background: var(--bg-soft); border-bottom: 1px solid var(--line-soft); }
+@media (max-width: 760px) { .atualizacao-hub { display: none; } }
+
 @media (max-width: 760px) {
   .hub-largura { padding: 0 16px; }
   .hub-topo-dentro { gap: 10px; }

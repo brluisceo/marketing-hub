@@ -20,7 +20,7 @@ async function chamar<T>(params: Record<string, string | undefined>, revalidar =
   return (await res.json()) as T;
 }
 
-// Mesmo cache de 120 s que a API tinha: poupa o banco e o Neon pode "dormir" entre visitas.
+// Cache de 60 s: a coleta roda a cada 5 min, então mais que isso só atrasaria os números.
 const doBanco = <A extends unknown[], R>(nome: string, fn: (...a: A) => Promise<R>) =>
   unstable_cache(async (...a: A) => {
     try {
@@ -29,7 +29,7 @@ const doBanco = <A extends unknown[], R>(nome: string, fn: (...a: A) => Promise<
       console.error(`[dados] ${nome}: ${(e as Error).message}`);
       throw new Error('Não foi possível ler os dados do banco. Confira DATABASE_URL e se o Neon está no ar.');
     }
-  }, ['hub', nome], { revalidate: 120 });
+  }, ['hub', nome], { revalidate: 60 });
 
 const banco = {
   overview: doBanco('overview', dados.overview),
@@ -47,6 +47,9 @@ export const hub = {
   post: (id: string) => (usaBanco && !modoDemo ? banco.post(id) : chamar<PostResp>({ recurso: 'post', post_id: id })),
   conta: (dias: string) => (usaBanco && !modoDemo ? banco.conta(dias) : chamar<ContaResp>({ recurso: 'conta', dias })),
   stories: (mes?: string) => (usaBanco && !modoDemo ? banco.stories(mes) : chamar<StoriesResp>({ recurso: 'stories', mes })),
+  // Sem cache: a faixa "atualizado há..." precisa do horário real. Falha aqui não derruba a página.
+  ultimaColeta: (): Promise<string | null> =>
+    usaBanco && !modoDemo ? dados.ultimaColeta().catch(() => null) : Promise.resolve(null),
   // Miniatura continua no n8n: precisa do token da Meta, que só existe lá.
   thumb: (id: string): Promise<{ url?: string }> =>
     process.env.HUB_API_URL && process.env.HUB_MOCK !== '1' ? chamar<{ url?: string }>({ recurso: 'thumb', post_id: id }, 3600) : Promise.resolve({})

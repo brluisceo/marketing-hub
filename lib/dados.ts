@@ -217,3 +217,13 @@ export async function stories(mesPedido?: string): Promise<StoriesResp> {
     kpis: kpisStories(doMes), kpis_mes_anterior: kpisStories(lista.filter((s) => s.mes_ref === mesAnt)), itens
   };
 }
+
+// Última coleta de posts ou Stories que deu certo (as duas rodam a cada 5 min). Usa o relógio do banco,
+// porque o do servidor do n8n está atrasado. 'instagram_30min' é o nome antigo da coleta de posts.
+export async function ultimaColeta(): Promise<string | null> {
+  const [r] = await linhas<{ em: string | null }>(
+    `SELECT ${iso('max(iniciado_em)')} AS em FROM sync_log
+      WHERE fluxo IN ('instagram_30min', 'instagram_stories') AND status LIKE 'ok%' AND iniciado_em > now() - interval '7 days'`
+  );
+  return r?.em ?? null;
+}

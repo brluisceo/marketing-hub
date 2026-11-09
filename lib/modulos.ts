@@ -26,8 +26,8 @@ export function avisos(mesNome: string): Aviso[] {
 
 // ligada: false = ponto cinza ("ainda desligada").
 export const COLETAS: { nome: string; frequencia: string; ligada: boolean }[] = [
-  { nome: 'Instagram · posts', frequencia: 'a cada 30 min', ligada: true },
-  { nome: 'Instagram · stories', frequencia: 'a cada 15 min', ligada: true },
+  { nome: 'Instagram · posts', frequencia: 'a cada 5 min', ligada: true },
+  { nome: 'Instagram · stories', frequencia: 'a cada 5 min', ligada: true },
   { nome: 'Instagram · conta', frequencia: 'diária', ligada: true },
   { nome: 'Meta Ads e funil', frequencia: 'ainda desligada', ligada: false }
 ];

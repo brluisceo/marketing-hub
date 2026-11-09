@@ -5,7 +5,7 @@ import MonthSelect from '@/components/MonthSelect';
 import Strip from '@/components/Strip';
 import Thumb from '@/components/Thumb';
 import { hub } from '@/lib/hub';
-import { compacto, deltaPct, deltaPp, haQuanto, mesAtual, mesCurto, nomeMes, num, pct } from '@/lib/format';
+import { compacto, deltaPct, deltaPp, mesAtual, mesCurto, nomeMes, num, pct } from '@/lib/format';
 import type { Overview } from '@/lib/types';
 
 export const metadata = { title: 'Instagram · Marketing HUB' };
@@ -43,7 +43,7 @@ export default async function VisaoGeral({ searchParams }: { searchParams: Promi
     <>
       <header className="toolbar">
         <h1>Visão geral</h1>
-        <span className="muted">@rogerio.fameli · atualizado {haQuanto(o.gerado_em)}</span>
+        <span className="muted">@rogerio.fameli</span>
         <span className="spacer" />
         <MonthSelect valor={mes} />
       </header>
