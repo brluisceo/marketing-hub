@@ -25,8 +25,8 @@ Node 20+ (a máquina tem 22). Depois de mudar código, rode `npm run build` para
 ## Como os dados chegam
 
 ```
-API da Meta (Graph v25) → n8n (coleta) → Postgres (Neon) → lib/dados.ts → lib/hub.ts → páginas
-(durante a migração o n8n ainda grava também nas Data Tables HUB_*; a API do hub no n8n segue no ar como plano B e para as miniaturas)
+API da Meta (Graph v25) → n8n (coleta) → Postgres (Optimus Cloud) → lib/dados.ts → lib/hub.ts → páginas
+(desde 09/11/2026 o n8n grava **só** no Postgres; as Data Tables HUB_* ficaram congeladas como arquivo. A API do hub no n8n continua no ar só por causa das miniaturas)
 ```
 
 ### n8n — https://n8n.absgroup.com.br, projeto "Marketing ABS Group"
@@ -35,12 +35,15 @@ API da Meta (Graph v25) → n8n (coleta) → Postgres (Neon) → lib/dados.ts �
 |---|---|---|
 | [HUB] Instagram — posts e métricas | `FWJQdOfb55MQIa9r` | A cada 30 min (posts dos últimos 14 dias); diário às 6h (90 dias, grava histórico em snapshots); carga inicial manual (365 dias) |
 | [HUB] Instagram — conta diária | `WmeA57lkpnF2Rday` | 1x por dia grava seguidores, alcance, visualizações e visitas do **dia anterior** |
-| [HUB] Instagram — stories | `YMWwbscNHSLv1GZ0` | A cada 15 min busca os Stories no ar (`/stories`) e grava métricas e navegação. A Meta só entrega Stories durante as 24 h no ar: sem histórico anterior a 05/11/2026 |
+| [HUB] Instagram — stories | `YMWwbscNHSLv1GZ0` | A cada 15 min busca os Stories no ar (`/stories`) e grava métricas e navegação. A lista pede só `id,media_type,timestamp,permalink` com `limit=25`: desde 08/11/2026 a Meta recusa o pedido com campos de mídia (`media_url`/`thumbnail_url`) com o erro "Please reduce the amount of data" (o site busca a miniatura à parte pelo id, então `stories.thumbnail_url` fica vazio). A Meta só entrega Stories durante as 24 h no ar: sem histórico anterior a 05/11/2026 |
+| [HUB] Avisos de erro | `cnJM9Py2NxmZdPWP` | Error workflow dos 3 fluxos de coleta (Settings > Error workflow). Avisa no Slack **#marketing-hub-aviso** (`C0CG6SWRCBT`, privado; credencial "[MARKETING] Slack", robô n8n-integration), no máximo 1 aviso por hora para o mesmo erro do mesmo fluxo (memória em static data). Botão "Testar aviso" manda uma mensagem de exemplo |
 | [HUB] API do hub | `QwHEHvXcqUP3G3F2` | Webhook `GET /webhook/hub-api`, protegido por Header Auth (credencial "X-Hub-Key"). Fuso `America/Sao_Paulo` |
 
 O MCP do n8n está disponível neste ambiente (`mcp__claude_ai_n8n__*`): use `get_workflow_details` para ler a lógica real antes de supor algo.
 
-### Tabelas (n8n Data Tables)
+### Tabelas antigas (n8n Data Tables) — congeladas desde 09/11/2026
+
+Ninguém grava mais nelas (os fluxos só gravam no Postgres). Os dados ficam como arquivo; podem ser apagadas quando o usuário quiser. As tabelas vivas estão no Postgres com os mesmos nomes sem `HUB_` (`posts`, `metricas_snapshots`, `contas_diario`, `stories`, `sync_log`), ver [db/schema.sql](db/schema.sql).
 
 | Tabela | ID | Conteúdo |
 |---|---|---|
@@ -76,7 +79,7 @@ Se mudar o formato de uma resposta, atualize **três lugares juntos**: o nó de 
 
 ## Estrutura do código
 
-- [lib/hub.ts](lib/hub.ts): único ponto de entrada dos dados. `hub.overview/posts/post/conta/stories` leem o Postgres via [lib/dados.ts](lib/dados.ts) (cache de 120 s com `unstable_cache`) quando há `DATABASE_URL`; com `HUB_FONTE=n8n` voltam para a API do hub (plano B). `hub.thumb` continua na API do n8n (precisa do token da Meta). `modoDemo` = `HUB_MOCK=1` ou sem banco e sem `HUB_API_URL`.
+- [lib/hub.ts](lib/hub.ts): único ponto de entrada dos dados. `hub.overview/posts/post/conta/stories` leem o Postgres via [lib/dados.ts](lib/dados.ts) (cache de 120 s com `unstable_cache`) quando há `DATABASE_URL`; `HUB_FONTE=n8n` volta para a API do hub, mas ela lê as Data Tables congeladas: **não serve mais como plano B** (mostraria dados parados em 09/11/2026). `hub.thumb` continua na API do n8n (precisa do token da Meta). `modoDemo` = `HUB_MOCK=1` ou sem banco e sem `HUB_API_URL`.
 - [lib/dados.ts](lib/dados.ts): reproduz a lógica dos nós de código do fluxo [HUB] API do hub (mesmo formato de resposta, mesmas datas ISO). Validado em 06/11/2026 comparando as duas fontes (30 casos; diferenças só na ordem de empates, que agora desempatam pelo post mais recente). Se mudar um cálculo, mude aqui (e no fluxo, enquanto ele for plano B).
 - [lib/mock.ts](lib/mock.ts): dados de exemplo (retrato de out/2026). `thumb` não existe no mock, então miniaturas não aparecem no modo demonstração.
 - [lib/format.ts](lib/format.ts): **toda** formatação de número, %, data e mês (pt-BR, fuso `America/Sao_Paulo`): `num`, `compacto`, `pct`, `deltaPct`, `deltaPp`, `nomeMes`, `dataCurta`, `haQuanto`... Reuse; não formate na página.
@@ -117,18 +120,21 @@ Next 15.3.3 tinha falha crítica de execução remota (CVE-2025-66478). Mantenha
 | `AUTH_SECRET` | Mínimo 32 caracteres (`openssl rand -hex 32`). Trocar desconecta todo mundo |
 | `APP_URL` | Endereço público (`https://marketinghub.contadorceo.com.br`). Monta o endereço de retorno do Google e os redirecionamentos do login. Vazio = endereço do pedido (ok em `localhost`) |
 | `HUB_MOCK` | `1` = dados de exemplo; `0` = dados reais (estado atual) |
-| `HUB_FONTE` | Vazio = Postgres (padrão). `n8n` = volta a ler pela API do hub (plano B, sem mexer no código) |
-| `DATABASE_URL` | Postgres (Neon, projeto `marketing-hub`, região São Paulo, database `neondb`), usuário `hub_site` via pooler: lê tudo, só grava em `acessos`. É a única do banco que vai para o servidor do site |
-| `DATABASE_URL_COLETA` | Usuário `hub_coleta` (conexão direta, sem `-pooler`): lê/grava/apaga linhas. Usado na credencial Postgres do n8n |
-| `DATABASE_URL_ADMIN` | Dono do banco (`neondb_owner`). Só local, para criar/alterar tabelas. Nunca no servidor do site |
+| `HUB_FONTE` | Vazio = Postgres (padrão, único com dados atuais). `n8n` = lê pela API do hub, que usa as Data Tables congeladas em 09/11/2026: não usar |
+| `DATABASE_URL` | Postgres **oficial** da Optimus Cloud: `production-postgresql.cl25.absgroup.com.br`, **porta 5490** (a 5432 cai em outro serviço, com certificado de `cl1.joinsy.com.br`), database `marketing_hub`, `sslmode=verify-full` (TLS 1.3). Usuário `hub_site`: lê tudo, grava só em `acessos`, `usuarios` e `usuarios_log`. É a única do banco que vai para o servidor do site |
+| `DATABASE_URL_COLETA` | Usuário `hub_coleta` na Optimus: lê/grava/apaga nas 5 tabelas da coleta (sem acesso a `usuarios`/`usuarios_log`/`acessos`). É o da credencial Postgres do n8n |
+| `DATABASE_URL_ADMIN` | `hub_admin` na Optimus, dono das tabelas (privilégio total). Só local, para criar/alterar tabelas. Nunca no servidor do site |
+| `DATABASE_URL_NEON*` | Banco antigo (Neon, plano grátis), mantido como reserva desde 09/11/2026: `_NEON` (hub_site), `_NEON_ADMIN` (neondb_owner), `_NEON_COLETA`. Parou de receber dados; pode ser apagado depois de alguns dias sem problema. Cópia do `.env.local` antes da troca: `.env.local.bak-neon` |
 
 ## Migração para Postgres (em andamento, desde 06/11/2026)
 
-Motivo: as Data Tables do n8n têm limite de espaço (~50 MB no total por padrão) e o projeto vai crescer. Banco de teste no Neon; o definitivo será criado pela equipe de hospedagem. Estrutura em [db/schema.sql](db/schema.sql) (idempotente; tabelas `posts`, `metricas_snapshots`, `contas_diario`, `stories`, `sync_log`, `acessos`). `pg` foi adicionado como dependência com aprovação do usuário.
+Motivo: as Data Tables do n8n têm limite de espaço (~50 MB no total por padrão) e o projeto vai crescer. Começou no Neon (teste); desde 09/11/2026 o oficial é o da Optimus Cloud. Estrutura em [db/schema.sql](db/schema.sql) (idempotente; tabelas `posts`, `metricas_snapshots`, `contas_diario`, `stories`, `sync_log`, `acessos`). `pg` foi adicionado como dependência com aprovação do usuário.
 
 Credencial n8n: "Postgres Marketing HUB" (`Soe3OA7UtlouR8TO`, usuário `hub_coleta`). Fluxo de cópia: [HUB] Migração para Postgres (`IYF1Qo55V25KmadM`, manual, pode rodar de novo sem duplicar).
 
-Etapas: 1) estrutura e usuários ✅ 2) copiar dados das Data Tables ✅ (06/11/2026) 3) fluxos gravam nos dois lugares ✅ publicado em 06/11/2026: nos 3 fluxos de coleta, um nó "Gravar no Postgres" (executeOnce, onError=continuar) sai em paralelo do nó "Montar linha(s)" e faz upsert + histórico + sync_log numa única query (JSON em base64 → `jsonb_to_recordset`); os nós das Data Tables não mudaram 4) site lê do Postgres ✅ no código (06/11/2026; falta publicar no servidor próprio com `DATABASE_URL`) 5) desligar as Data Tables.
+**09/11/2026: banco oficial passou a ser o da Optimus Cloud.** Eles criaram as tabelas e os usuários `hub_admin`/`hub_site`/`hub_coleta` (estrutura conferida: idêntica ao Neon). Dados copiados do Neon com um script idempotente (`jsonb_populate_recordset` + `ON CONFLICT`, só sobrescreve quando o dado de origem é mais novo); totais e somas conferidos. A credencial do n8n "Postgres Marketing HUB" agora aponta para a Optimus (porta 5490, `hub_coleta`), testada com uma coleta de posts. O site publicado em marketinghub.contadorceo.com.br já usava esse banco desde 06/11. Mesmo dia: **Data Tables desligadas** (etapa 5): nos 3 fluxos de coleta foram removidos os nós de Data Table (e os nós de resumo/IF que só serviam a eles); "Gravar no Postgres" é a única gravação, com `onError=stopWorkflow` e até 3 tentativas (falha aparece como erro no n8n). Pendências: apagar o Neon depois de alguns dias, NTP do servidor do n8n (~8 min atrasado).
+
+Etapas: 1) estrutura e usuários ✅ 2) copiar dados das Data Tables ✅ (06/11/2026) 3) fluxos gravam nos dois lugares ✅ (06/11/2026): nó "Gravar no Postgres" (executeOnce) depois de "Montar linha(s)" faz upsert + histórico + sync_log numa única query (JSON em base64 → `jsonb_to_recordset`) 4) site lê do Postgres ✅ (publicado pela Optimus) 5) desligar as Data Tables ✅ (09/11/2026).
 
 ## Diagnóstico rápido
 
