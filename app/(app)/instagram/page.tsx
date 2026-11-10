@@ -85,11 +85,11 @@ export default async function VisaoGeral({ searchParams }: { searchParams: Promi
             </table>
           </div>
           <div className="aside-block">
-            <div className="row-between"><h2>Destaques</h2><Link href={`/posts?mes=${mes}&ordem=alcance`}>Ver todos</Link></div>
+            <div className="row-between"><h2>Destaques</h2><Link href={`/instagram/posts?mes=${mes}&ordem=alcance`}>Ver todos</Link></div>
             <ul className="top-list">
               {o.top_posts.map((p) => (
                 <li key={p.post_id}>
-                  <Link href={`/posts/${p.post_id}`} className="top-item">
+                  <Link href={`/instagram/posts/${p.post_id}`} className="top-item">
                     <Thumb id={p.post_id} className="thumb-sm" />
                     <span className="ellipsis">{p.legenda || '(sem legenda)'}</span>
                     <span className="strong num">{num(p.alcance)}</span>

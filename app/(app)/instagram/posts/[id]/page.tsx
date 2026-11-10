@@ -49,7 +49,7 @@ export default async function DetalhePost({ params }: { params: Promise<{ id: st
   return (
     <>
       <header className="toolbar">
-        <Link href={`/posts?mes=${p.mes_ref}`}>‹ Posts</Link>
+        <Link href={`/instagram/posts?mes=${p.mes_ref}`}>‹ Posts</Link>
         <span className="muted">/</span>
         <h1 className="ellipsis title-wide">{p.legenda || '(sem legenda)'}</h1>
         <span className="spacer" />
@@ -86,7 +86,7 @@ export default async function DetalhePost({ params }: { params: Promise<{ id: st
           <section className="panel">
             <div className="panel-head"><h2>Evolução do alcance</h2><span className="muted">por dia de coleta</span></div>
             {historico.length >= 2 ? (
-              <Bars ariaLabel="Evolução do alcance do post" mostrarValores={false} dados={historico.map((h, i, arr) => ({ rotulo: dataCurta(h.coletado_em), valor: h.alcance, destaque: i === arr.length - 1 }))} />
+              <Bars ariaLabel="Evolução do alcance do post" mostrarValores={false} dados={historico.map((h, i, arr) => ({ rotulo: i % Math.ceil(arr.length / 10) === 0 ? dataCurta(h.coletado_em) : '', valor: h.alcance, destaque: i === arr.length - 1 }))} />
             ) : (
               <p className="muted">A evolução aparece a partir do segundo dia de coleta deste post. O histórico é gravado todos os dias às 6h.</p>
             )}

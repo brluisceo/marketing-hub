@@ -8,22 +8,22 @@ import { PAPEIS, pode, type Papel } from '@/lib/session';
 // só owner promove alguém a owner ou mexe em quem já é owner.
 async function aplicar(form: FormData, mudanca: (atual: Papel) => { papel?: Papel; bloqueado?: boolean } | string): Promise<never> {
   const ator = await usuarioAtual();
-  if (!ator || !pode(ator.papel, 'admin')) redirect('/usuarios?msg=sem_permissao');
+  if (!ator || !pode(ator.papel, 'admin')) redirect('/admin/usuarios?msg=sem_permissao');
   const email = String(form.get('email') || '').trim().toLowerCase();
-  if (email.length > 320 || !/^[a-z0-9._%+-]+@absgroup\.com\.br$/.test(email)) redirect('/usuarios?msg=email_invalido');
-  if (email === ator.email.toLowerCase()) redirect('/usuarios?msg=proprio');
+  if (email.length > 320 || !/^[a-z0-9._%+-]+@absgroup\.com\.br$/.test(email)) redirect('/admin/usuarios?msg=email_invalido');
+  if (email === ator.email.toLowerCase()) redirect('/admin/usuarios?msg=proprio');
   const alvo = await situacaoDe(email);
-  if (!alvo) redirect('/usuarios?msg=banco');
+  if (!alvo) redirect('/admin/usuarios?msg=banco');
   const m = mudanca(alvo.papel);
-  if (typeof m === 'string') redirect(`/usuarios?msg=${m}`);
-  if ((alvo.papel === 'owner' || m.papel === 'owner') && ator.papel !== 'owner') redirect('/usuarios?msg=so_owner');
+  if (typeof m === 'string') redirect(`/admin/usuarios?msg=${m}`);
+  if ((alvo.papel === 'owner' || m.papel === 'owner') && ator.papel !== 'owner') redirect('/admin/usuarios?msg=so_owner');
   try {
     await salvarUsuario(email, m, ator.email.toLowerCase());
   } catch (e) {
     console.error(`[usuarios] não salvo: ${(e as Error).message}`);
-    redirect('/usuarios?msg=banco');
+    redirect('/admin/usuarios?msg=banco');
   }
-  redirect('/usuarios?msg=salvo');
+  redirect('/admin/usuarios?msg=salvo');
 }
 
 function papelDoForm(form: FormData): Papel | null {

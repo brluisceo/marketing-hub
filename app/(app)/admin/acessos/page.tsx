@@ -45,7 +45,7 @@ export default async function Acessos({ searchParams }: { searchParams: Promise<
   } catch (e) {
     return <ErroApi mensagem={(e as Error).message} />;
   }
-  const link = (d: number, f: FiltroAcesso) => `/acessos?dias=${d}&filtro=${f}`;
+  const link = (d: number, f: FiltroAcesso) => `/admin/acessos?dias=${d}&filtro=${f}`;
 
   return (
     <>
@@ -74,7 +74,7 @@ export default async function Acessos({ searchParams }: { searchParams: Promise<
           <div className="empty"><h2>Nenhum acesso neste período</h2><p>Cada entrada e saída do hub, e cada tentativa recusada, aparece aqui na hora.</p></div>
         ) : (
           <div className="table-wrap">
-            <table className="table">
+            <table className="table table-cartoes">
               <thead>
                 <tr><th>Quando</th><th>Pessoa</th><th>Papel</th><th>Resultado</th><th>Aparelho</th><th>IP</th></tr>
               </thead>
@@ -90,10 +90,10 @@ export default async function Acessos({ searchParams }: { searchParams: Promise<
                         </>
                       ) : <span className="muted">Não identificado</span>}
                     </td>
-                    <td>{a.email ? (a.papel || 'leitor') : '—'}</td>
-                    <td><span className={a.resultado === 'ok' ? 'pill pill-blue' : a.resultado === 'saida' ? 'pill' : 'pill pill-alerta'}>{MOTIVOS[a.resultado] || a.resultado}</span></td>
-                    <td className="sub">{aparelho(a.navegador)}</td>
-                    <td className="sub num">{a.ip || '—'}</td>
+                    <td data-rotulo="Papel">{a.email ? (a.papel || 'leitor') : '—'}</td>
+                    <td data-rotulo="Resultado"><span className={a.resultado === 'ok' ? 'pill pill-blue' : a.resultado === 'saida' ? 'pill' : 'pill pill-alerta'}>{MOTIVOS[a.resultado] || a.resultado}</span></td>
+                    <td className="sub" data-rotulo="Aparelho">{aparelho(a.navegador)}</td>
+                    <td className="sub num" data-rotulo="IP">{a.ip || '—'}</td>
                   </tr>
                 ))}
               </tbody>

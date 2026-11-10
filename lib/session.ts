@@ -110,7 +110,7 @@ export function opcoesCookie(maxAge: number, path = '/') {
   return { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' as const, path, maxAge };
 }
 
-// Só aceita caminho interno ("/posts?mes=..."): bloqueia "//site.com", "/\site.com" e caracteres de controle.
+// Só aceita caminho interno ("/instagram/posts?mes=..."): bloqueia "//site.com", "/\site.com" e caracteres de controle.
 export function destinoSeguro(v: string | null | undefined): string {
   const s = typeof v === 'string' ? v : '';
   if (s.length > 512 || !/^\/(?![/\\])[^\\\u0000-\u001f\u007f]*$/.test(s)) return '/';

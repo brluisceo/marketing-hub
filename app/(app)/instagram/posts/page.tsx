@@ -26,11 +26,13 @@ export default async function Posts({ searchParams }: { searchParams: Promise<SP
     return <ErroApi mensagem={(e as Error).message} />;
   }
   const sel = lista.itens.find((p) => p.post_id === sp.sel) || lista.itens[0];
+  // No celular o painel do post só abre (por cima da lista) quando a pessoa toca num post.
+  const selEscolhido = !!sp.sel && sel?.post_id === sp.sel;
   const qs = (extra: Partial<SP>) => {
     const q = new URLSearchParams();
     const base: SP = { mes, formato: sp.formato, ordem, busca: sp.busca, pagina: sp.pagina, ...extra };
     for (const [k, v] of Object.entries(base)) if (v) q.set(k, v);
-    return `/posts?${q.toString()}`;
+    return `/instagram/posts?${q.toString()}`;
   };
   const paginas = Math.max(1, Math.ceil(lista.total / lista.por_pagina));
   const { kpis: k, kpis_mes_anterior: a } = o;
@@ -40,7 +42,7 @@ export default async function Posts({ searchParams }: { searchParams: Promise<SP
         <h1>Posts de {nomeMes(mes, false)}</h1>
         <span className="muted">{lista.total} posts</span>
         <span className="spacer" />
-        <form className="filters" method="get" action="/posts">
+        <form className="filters" method="get" action="/instagram/posts">
           <label className="inline-field">Mês
             <select name="mes" defaultValue={mes}>{ultimosMeses(12).map((m) => <option key={m} value={m}>{nomeMes(m)}</option>)}</select>
           </label>
@@ -71,29 +73,29 @@ export default async function Posts({ searchParams }: { searchParams: Promise<SP
       <div className="split">
         <div className="content content-flush">
           {lista.itens.length === 0 ? (
-            <div className="empty"><h2>Nenhum post encontrado</h2><p>Troque o mês, o formato ou limpe a busca.</p><Link href={`/posts?mes=${mes}`}>Limpar filtros</Link></div>
+            <div className="empty"><h2>Nenhum post encontrado</h2><p>Troque o mês, o formato ou limpe a busca.</p><Link href={`/instagram/posts?mes=${mes}`}>Limpar filtros</Link></div>
           ) : (
             <div className="table-wrap">
-              <table className="table">
+              <table className={'table table-adapta' + (selEscolhido ? '' : ' sel-padrao')}>
                 <thead>
-                  <tr><th>Post</th><th>Formato</th><th>Data</th><th className="r">Alcance</th><th className="r">Interações</th><th className="r">Engaj.</th></tr>
+                  <tr><th>Post</th><th className="so-largo">Formato</th><th>Data</th><th className="r">Alcance</th><th className="r so-largo">Interações</th><th className="r so-medio">Engaj.</th></tr>
                 </thead>
                 <tbody>
                   {lista.itens.map((p) => {
                     const ativo = sel?.post_id === p.post_id;
                     return (
                       <tr key={p.post_id} className={ativo ? 'is-selected' : ''}>
-                        <td>
+                        <td className="col-legenda">
                           <Link href={qs({ sel: p.post_id })} scroll={false} className="row-link" aria-current={ativo ? 'true' : undefined}>
                             <Thumb id={p.post_id} className="thumb-sm" />
                             <span className="ellipsis">{p.legenda || '(sem legenda)'}</span>
                           </Link>
                         </td>
-                        <td className="sub">{p.formato}</td>
+                        <td className="sub so-largo">{p.formato}</td>
                         <td className="sub">{dataCurta(p.publicado_em)}</td>
                         <td className="r strong num">{num(p.alcance)}</td>
-                        <td className="r num">{num(p.interacoes)}</td>
-                        <td className="r num">{pct(p.engajamento_pct)}</td>
+                        <td className="r num so-largo">{num(p.interacoes)}</td>
+                        <td className="r num so-medio">{pct(p.engajamento_pct)}</td>
                       </tr>
                     );
                   })}
@@ -110,7 +112,8 @@ export default async function Posts({ searchParams }: { searchParams: Promise<SP
           ) : null}
         </div>
         {sel ? (
-          <aside className="aside" aria-label="Detalhes do post">
+          <aside className={'aside aside-sel' + (selEscolhido ? ' is-aberto' : '')} aria-label="Detalhes do post">
+            <div className="aside-fechar"><Link href={qs({})} scroll={false} className="btn">Fechar</Link></div>
             <Thumb id={sel.post_id} formato={sel.formato} className="thumb-lg" />
             <div className="aside-block">
               <p className="strong lead">{sel.legenda || '(sem legenda)'}</p>
@@ -123,7 +126,7 @@ export default async function Posts({ searchParams }: { searchParams: Promise<SP
               ].map(([l, v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}
             </dl>
             <div className="aside-actions">
-              <Link href={`/posts/${sel.post_id}`} className="btn btn-primary">Ver detalhes do post</Link>
+              <Link href={`/instagram/posts/${sel.post_id}`} className="btn btn-primary">Ver detalhes do post</Link>
               <a href={sel.permalink} target="_blank" rel="noreferrer" className="btn">Abrir no Instagram ↗</a>
             </div>
           </aside>

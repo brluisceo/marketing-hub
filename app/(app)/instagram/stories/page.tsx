@@ -20,6 +20,8 @@ export default async function Stories({ searchParams }: { searchParams: Promise<
   }
   const { kpis: k, kpis_mes_anterior: a, itens } = r;
   const sel = itens.find((s) => s.story_id === sp.sel) || itens[0];
+  // No celular o painel do story só abre (por cima da lista) quando a pessoa toca num story.
+  const selEscolhido = !!sp.sel && sel?.story_id === sp.sel;
   const noAr = itens.filter((s) => s.no_ar).length;
   const nav = sel ? sel.toques_avancar + sel.toques_voltar + sel.saidas + sel.proximo_story : 0;
   const parte = (v: number) => (nav ? (v / nav) * 100 : 0);
@@ -49,9 +51,9 @@ export default async function Stories({ searchParams }: { searchParams: Promise<
             <div className="empty"><h2>Nenhum story neste mês</h2><p>Os Stories aparecem aqui até 5 minutos depois de publicados.</p></div>
           ) : (
             <div className="table-wrap">
-              <table className="table">
+              <table className={'table table-adapta' + (selEscolhido ? '' : ' sel-padrao')}>
                 <thead>
-                  <tr><th>Story</th><th>Publicado</th><th className="r">Alcance</th><th className="r">Visualizações</th><th className="r">Respostas</th><th className="r">Saídas</th></tr>
+                  <tr><th>Story</th><th>Publicado</th><th className="r">Alcance</th><th className="r so-largo">Visualizações</th><th className="r so-largo">Respostas</th><th className="r so-medio">Saídas</th></tr>
                 </thead>
                 <tbody>
                   {itens.map((s) => {
@@ -59,7 +61,7 @@ export default async function Stories({ searchParams }: { searchParams: Promise<
                     return (
                       <tr key={s.story_id} className={ativo ? 'is-selected' : ''}>
                         <td>
-                          <Link href={`/stories?mes=${mes}&sel=${s.story_id}`} scroll={false} className="row-link" aria-current={ativo ? 'true' : undefined}>
+                          <Link href={`/instagram/stories?mes=${mes}&sel=${s.story_id}`} scroll={false} className="row-link" aria-current={ativo ? 'true' : undefined}>
                             <Thumb id={s.story_id} className="thumb-sm" />
                             <span>{s.formato}</span>
                             {s.no_ar ? <span className="pill pill-blue">no ar</span> : null}
@@ -67,9 +69,9 @@ export default async function Stories({ searchParams }: { searchParams: Promise<
                         </td>
                         <td className="sub">{dataHora(s.publicado_em)}</td>
                         <td className="r strong num">{num(s.alcance)}</td>
-                        <td className="r num">{num(s.visualizacoes)}</td>
-                        <td className="r num">{num(s.respostas)}</td>
-                        <td className="r num">{pct(s.visualizacoes ? (s.saidas / s.visualizacoes) * 100 : 0)}</td>
+                        <td className="r num so-largo">{num(s.visualizacoes)}</td>
+                        <td className="r num so-largo">{num(s.respostas)}</td>
+                        <td className="r num so-medio">{pct(s.visualizacoes ? (s.saidas / s.visualizacoes) * 100 : 0)}</td>
                       </tr>
                     );
                   })}
@@ -79,7 +81,8 @@ export default async function Stories({ searchParams }: { searchParams: Promise<
           )}
         </div>
         {sel ? (
-          <aside className="aside" aria-label="Detalhes do story">
+          <aside className={'aside aside-sel' + (selEscolhido ? ' is-aberto' : '')} aria-label="Detalhes do story">
+            <div className="aside-fechar"><Link href={`/instagram/stories?mes=${mes}`} scroll={false} className="btn">Fechar</Link></div>
             <Thumb id={sel.story_id} formato={sel.formato} className="thumb-lg" />
             <div className="aside-block">
               <span className="muted">{dataHora(sel.publicado_em)}{sel.no_ar ? ' · no ar' : ''}</span>

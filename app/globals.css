@@ -46,10 +46,14 @@ h1, h2, p { margin: 0; }
 .main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; }
 
 .sidebar { flex: 1 1 210px; max-width: 100%; background: var(--bg-side); border-right: 1px solid #e0e0e4; padding: 20px 10px; display: flex; flex-direction: column; gap: 2px; }
-/* Menu fixo ao lado quando há espaço (210 + 560 px); no celular ele fica em cima e rola junto. */
-@media (min-width: 780px) {
+/* Computador e notebook: menu fixo ao lado. Abaixo de 1000 px ele vira a gaveta do botão "Menu" (ver "Telas menores"). */
+@media (min-width: 1000px) {
   .sidebar { position: sticky; top: 0; align-self: flex-start; height: 100vh; overflow-y: auto; }
 }
+/* `.sidebar .menu-fechar` (e não só `.menu-fechar`) para vencer o `display` do `.btn`, que vem depois no arquivo. */
+.topo-movel, .sidebar .menu-fechar, .menu-fundo, .aside-fechar { display: none; }
+.sidebar-topo { display: contents; }
+.menu-btn { gap: 6px; font-weight: 500; }
 .brand { display: flex; align-items: center; gap: 8px; padding: 0 10px 14px; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
 .brand-mark { width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
 .brand-lg { font-size: 18px; padding: 0 0 8px; justify-content: center; }
@@ -108,17 +112,23 @@ h1, h2, p { margin: 0; }
 .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .panel-head .muted { font-size: 12px; }
 .bars { margin: 0; display: flex; flex-direction: column; gap: 6px; }
-.bars-area { display: flex; align-items: flex-end; gap: 6px; border-bottom: 1px solid var(--line); }
+.bars-caixa { container-type: inline-size; }
+.bars-area { height: var(--area); display: flex; align-items: flex-end; gap: 6px; border-bottom: 1px solid var(--line); }
 .bars-col { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; }
 .bars-val { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.bars-bar { width: 100%; max-width: 28px; border-radius: 4px 4px 0 0; background: var(--bar); }
+.bars-bar { height: var(--h); width: 100%; max-width: 28px; border-radius: 4px 4px 0 0; background: var(--bar); }
 .bars-bar.is-hi { background: var(--accent); }
 .bars-labels { display: flex; gap: 6px; }
 .bars-labels span { flex: 1 1 0; min-width: 0; text-align: center; font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; }
+/* Rótulo só de vez em quando (séries longas): ele pode passar por cima dos vizinhos vazios, sem ser cortado. */
+.bars-esparso .bars-labels span { display: flex; justify-content: center; overflow: visible; }
 
 /* Tabelas */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; container-type: inline-size; }
 .table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.table-adapta { min-width: 0; }
+/* A legenda ocupa o que sobra e é cortada com "...", em vez de empurrar as outras colunas para fora da tela. */
+.table .col-legenda { width: 100%; max-width: 0; }
 .table th { text-align: left; font-weight: 500; font-size: 12px; color: var(--text-3); padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .table th:first-child, .table td:first-child { padding-left: 24px; }
 .table th:last-child, .table td:last-child { padding-right: 24px; }
@@ -127,7 +137,7 @@ h1, h2, p { margin: 0; }
 .table tr.is-selected { background: var(--accent); color: #fff; }
 .table tr.is-selected td.sub { color: #e6f0fc; }
 .table tr.is-selected .row-link { color: #fff; }
-.row-link { display: flex; align-items: center; gap: 12px; min-height: 44px; color: var(--text); max-width: 440px; }
+.row-link { display: flex; align-items: center; gap: 12px; min-height: 44px; color: var(--text); }
 .row-link:hover { text-decoration: none; }
 .mini-table { width: 100%; border-collapse: collapse; }
 .mini-table th { text-align: left; font-weight: 500; font-size: 12px; color: var(--text-3); padding: 6px 0; border-bottom: 1px solid var(--line); }
@@ -352,6 +362,8 @@ h1, h2, p { margin: 0; }
 .atualizacao > span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .atualizacao-faixa { padding: 6px 24px; background: var(--bg-soft); border-bottom: 1px solid var(--line-soft); }
 @media (max-width: 760px) { .atualizacao-hub { display: none; } }
+.hub-brand { flex: none; white-space: nowrap; }
+@media (max-width: 999px) { .atualizacao-hub .atualizacao-sep, .atualizacao-hub .atualizacao-proxima { display: none; } }
 
 @media (max-width: 760px) {
   .hub-largura { padding: 0 16px; }
@@ -385,3 +397,101 @@ h1, h2, p { margin: 0; }
 .secao-titulo { font-size: 13px; font-weight: 600; padding: 28px 24px 4px; }
 .pill-voce { margin-left: 6px; }
 .hub-conta-link { margin-top: 8px; justify-content: center; }
+
+/* ===== Telas menores =====
+   ≥ 1000 px (computador, notebook, iPad deitado): menu lateral fixo.
+   < 1000 px (tablet em pé, celular): barra no topo com botão "Menu" que abre o menu como gaveta.
+   < 760 px (celular): painel lateral vai para baixo; o detalhe de post/story abre por cima da lista.
+   Tabelas e gráficos se ajustam à largura do próprio bloco (container queries), não à da tela. */
+
+/* Lista e painel lado a lado sempre que couberem os dois (tablet em pé, notebook pequeno). */
+@media (min-width: 760px) { .split { flex-wrap: nowrap; } .aside { min-width: 300px; } }
+.aside { container-type: inline-size; }
+@container (max-width: 340px) { .metric-grid > div { padding: 10px; } .metric-grid dt { font-size: 11px; } }
+
+@media (max-width: 999px) {
+  .app { flex-direction: column; flex-wrap: nowrap; }
+  .main { flex: 1 1 auto; }
+  .topo-movel { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 16px; background: rgba(242, 242, 244, 0.86); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid #e0e0e4; }
+  .topo-movel .brand { padding: 0; }
+  .sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; width: min(300px, 86vw); max-width: none; overflow-y: auto; overscroll-behavior: contain; border-right: 0; box-shadow: 0 0 40px rgba(0, 0, 0, 0.18);
+    transform: translateX(-100%); visibility: hidden; transition: transform 0.25s ease, visibility 0s linear 0.25s; }
+  .sidebar.is-aberto { transform: none; visibility: visible; transition: transform 0.25s ease; }
+  .sidebar-topo { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; }
+  .sidebar-topo .brand { padding-bottom: 0; }
+  .sidebar .menu-fechar { display: inline-flex; width: 32px; padding: 0; }
+  .menu-fundo { display: block; position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, 0.28); }
+  body.menu-aberto { overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) { .sidebar, .sidebar.is-aberto { transition: none; } }
+
+@media (max-width: 759px) {
+  .atualizacao-faixa { padding: 6px 16px; }
+  .toolbar { gap: 8px 12px; }
+  .toolbar .filters { width: 100%; }
+  .toolbar .filters .inline-field { flex: 1 1 140px; }
+  .toolbar .filters .inline-field select { flex: 1 1 auto; min-width: 0; }
+  .toolbar .filters .search { flex: 1 1 200px; }
+  .toolbar .filters .search input { width: 100%; }
+  .toolbar .filters > .btn { flex: 1 1 100%; }
+  .stat { padding: 14px 16px; }
+  .aside { border-left: 0; border-top: 1px solid var(--line); padding: 20px 16px; }
+  .empty { padding: 32px 16px; }
+  .pager, .tabela-nota { padding-left: 16px; padding-right: 16px; }
+  .secao-titulo { padding-left: 16px; padding-right: 16px; }
+  .content-flush > .notice { margin: 12px 16px 0; }
+  .table th:first-child, .table td:first-child { padding-left: 16px; }
+  .table th:last-child, .table td:last-child { padding-right: 16px; }
+  .post-head { gap: 16px; }
+
+  /* Posts e Stories: sem toque, o painel fica escondido; com toque, abre por cima da lista. */
+  .aside-sel { display: none; }
+  .aside-sel.is-aberto { display: flex; position: fixed; inset: 0; z-index: 45; overflow-y: auto; overscroll-behavior: contain; background: var(--bg); border-top: 0; padding: 0 16px 28px; gap: 18px; }
+  .aside-sel.is-aberto .aside-fechar { display: flex; justify-content: flex-end; position: sticky; top: 0; z-index: 2; margin: 0 -16px; padding: 10px 16px; background: rgba(255, 255, 255, 0.9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line-soft); }
+  body:has(.aside-sel.is-aberto) { overflow: hidden; }
+  /* Ninguém tocou ainda: não destaca a primeira linha. */
+  .sel-padrao tr.is-selected { background: none; color: inherit; }
+  .sel-padrao tr.is-selected td.sub { color: var(--text-3); }
+  .sel-padrao tr.is-selected .row-link { color: var(--text); }
+}
+
+@media (max-width: 480px) {
+  .atualizacao > span:last-child { white-space: normal; }
+  .toolbar h1 { font-size: 16px; }
+  .thumb-xl { width: 100%; max-width: 260px; }
+}
+
+/* Tabelas: colunas menos importantes saem quando falta espaço. */
+@container (max-width: 640px) { .so-largo { display: none; } }
+@container (max-width: 460px) { .so-medio { display: none; } }
+
+/* Usuários e Acessos: em blocos estreitos, cada linha vira um cartão com o nome do campo ao lado do valor. */
+@container (max-width: 560px) {
+  .table-cartoes, .table-cartoes tbody, .table-cartoes tr, .table-cartoes td { display: block; }
+  .table-cartoes { min-width: 0; }
+  .table-cartoes thead { display: none; }
+  .table-cartoes tr { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
+  .table-cartoes td, .table-cartoes td:first-child, .table-cartoes td:last-child { padding: 2px 0; border: 0; text-align: left; }
+  .table-cartoes td[data-rotulo] { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
+  .table-cartoes td[data-rotulo] > * { text-align: right; }
+  .table-cartoes td[data-rotulo]::before { content: attr(data-rotulo); flex: none; color: var(--text-3); font-size: 12px; }
+}
+
+/* Gráficos estreitos: barras com valor ficam deitadas (uma linha por item); as sem valor ficam mais juntas. */
+@container (max-width: 520px) {
+  .bars-com-valores { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 12px; align-items: center; }
+  .bars-com-valores .bars-area, .bars-com-valores .bars-labels { display: contents; }
+  .bars-com-valores .bars-labels span { grid-column: 1; grid-row: var(--i); font-size: 12px; text-align: left; overflow: visible; }
+  .bars-com-valores .bars-col { grid-column: 2; grid-row: var(--i); height: auto; flex-direction: row; justify-content: flex-start; align-items: center; gap: 8px; }
+  .bars-com-valores .bars-bar { order: 1; flex: none; height: 16px; max-width: none; width: max(3px, calc(var(--p) * (100% - 72px))); border-radius: 0 4px 4px 0; }
+  .bars-com-valores .bars-val { order: 2; font-size: 12px; }
+  .bars:not(.bars-com-valores) .bars-area, .bars:not(.bars-com-valores) .bars-labels { gap: 2px; }
+  .bars-esparso .bars-labels span { font-size: 10px; }
+}
+
+/* Celular e tablet (toque): alvos maiores e texto de 16 px nos campos, para o iPhone não dar zoom sozinho. */
+@media (pointer: coarse) {
+  .btn { min-height: 40px; }
+  .inline-field select, .search input, .hub-busca input { font-size: 16px; min-height: 40px; }
+  .seg a { min-height: 36px; }
+}

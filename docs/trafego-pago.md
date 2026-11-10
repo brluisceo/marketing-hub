@@ -80,7 +80,7 @@ Para não brigar com o trabalho que segue em paralelo na `main`, coloque o máxi
 
 | O quê | Onde |
 |---|---|
-| Telas | `app/(app)/trafego/` (o menu lateral e o login vêm de graça pelo layout). Use [app/(app)/stories/page.tsx](../app/(app)/stories/page.tsx) como modelo |
+| Telas | `app/(app)/trafego/` (o menu lateral e o login vêm de graça pelo layout). **Todas as telas do módulo ficam dentro dessa pasta** (`/trafego` = visão geral, `/trafego/campanhas`, `/trafego/funil`...), como o Instagram faz com `/instagram/posts`. No menu lateral, a visão geral do módulo usa `exato` (ver `/instagram` em `components/Sidebar.tsx`). Use [app/(app)/instagram/stories/page.tsx](../app/(app)/instagram/stories/page.tsx) como modelo |
 | Consultas ao banco | arquivo novo, ex.: `lib/trafego.ts`, no mesmo estilo de [lib/dados.ts](../lib/dados.ts) |
 | Tipos das respostas | no fim de [lib/types.ts](../lib/types.ts) |
 | Dados de exemplo | em [lib/mock.ts](../lib/mock.ts) ou num arquivo novo |

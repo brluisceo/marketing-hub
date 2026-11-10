@@ -128,7 +128,7 @@ export default async function Inicio() {
           {ultima ? <Atualizacao ultima={ultima} agora={Date.now()} className="atualizacao-hub" /> : null}
           <span className="spacer" />
           {/* Por enquanto a busca procura nas legendas dos posts. */}
-          <form action="/posts" method="get" className="hub-busca" role="search">
+          <form action="/instagram/posts" method="get" className="hub-busca" role="search">
             {Icone.busca}
             <label className="sr-only" htmlFor="hub-busca">Buscar</label>
             <input id="hub-busca" type="search" name="busca" placeholder="Buscar posts, campanhas, sites..." />
@@ -143,7 +143,7 @@ export default async function Inicio() {
             <div className="hub-conta-menu">
               <span className="strong ellipsis">{nome}</span>
               <span className="muted small ellipsis">{s?.email}</span>
-              {s && pode(s.papel, 'admin') ? <Link href="/usuarios" className="btn hub-conta-link">Administração</Link> : null}
+              {s && pode(s.papel, 'admin') ? <Link href="/admin/usuarios" className="btn hub-conta-link">Administração</Link> : null}
               <form method="post" action="/api/logout"><button type="submit" className="btn sair-btn">Sair</button></form>
             </div>
           </details>

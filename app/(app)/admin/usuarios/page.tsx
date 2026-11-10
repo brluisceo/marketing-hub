@@ -65,7 +65,7 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
           Qualquer pessoa com e-mail @{DOMINIO} entra como Leitor, a não ser que esteja bloqueada. Owner e Admin veem a Administração.
         </p>
         <div className="table-wrap">
-          <table className="table">
+          <table className="table table-cartoes">
             <thead>
               <tr><th>Pessoa</th><th>Papel</th><th>Situação</th><th>Último acesso</th><th className="r">Acesso</th></tr>
             </thead>
@@ -80,7 +80,7 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
                       <span className="muted small"> {u.email}</span>
                       {souEu ? <span className="pill pill-voce">você</span> : null}
                     </td>
-                    <td>
+                    <td data-rotulo="Papel">
                       {posso ? (
                         <form action={alterarPapel} className="filters">
                           <input type="hidden" name="email" value={u.email} />
@@ -92,9 +92,9 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
                         </form>
                       ) : ROTULO_PAPEL[u.papel]}
                     </td>
-                    <td>{u.bloqueado ? <span className="pill pill-alerta">Bloqueado</span> : <span className="pill pill-blue">Ativo</span>}</td>
-                    <td className="sub">{u.ultimo_acesso ? haQuanto(u.ultimo_acesso) : 'Nunca entrou'}</td>
-                    <td className="r">
+                    <td data-rotulo="Situação">{u.bloqueado ? <span className="pill pill-alerta">Bloqueado</span> : <span className="pill pill-blue">Ativo</span>}</td>
+                    <td className="sub" data-rotulo="Último acesso">{u.ultimo_acesso ? haQuanto(u.ultimo_acesso) : 'Nunca entrou'}</td>
+                    <td className="r" data-rotulo="Acesso">
                       {posso ? (
                         <form action={alterarBloqueio}>
                           <input type="hidden" name="email" value={u.email} />
@@ -115,15 +115,15 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
           <p className="muted tabela-nota">Nenhuma alteração ainda.</p>
         ) : (
           <div className="table-wrap">
-            <table className="table">
+            <table className="table table-cartoes">
               <thead><tr><th>Quando</th><th>Quem fez</th><th>O quê</th><th>Pessoa</th></tr></thead>
               <tbody>
                 {historico.map((h) => (
                   <tr key={h.id}>
                     <td className="sub num">{dataHora(h.em)}</td>
-                    <td>{nomes.get(h.autor) || nomeCurto(h.autor)}</td>
-                    <td>{ACOES[h.acao] || h.acao}{h.detalhe ? ` ${h.acao === 'cadastro' ? ROTULO_PAPEL[h.detalhe as Papel] || h.detalhe : `(${h.detalhe})`}` : ''}</td>
-                    <td>{nomes.get(h.alvo) || nomeCurto(h.alvo)} <span className="muted small">{h.alvo}</span></td>
+                    <td data-rotulo="Quem fez">{nomes.get(h.autor) || nomeCurto(h.autor)}</td>
+                    <td data-rotulo="O quê">{ACOES[h.acao] || h.acao}{h.detalhe ? ` ${h.acao === 'cadastro' ? ROTULO_PAPEL[h.detalhe as Papel] || h.detalhe : `(${h.detalhe})`}` : ''}</td>
+                    <td data-rotulo="Pessoa"><span>{nomes.get(h.alvo) || nomeCurto(h.alvo)} <span className="muted small">{h.alvo}</span></span></td>
                   </tr>
                 ))}
               </tbody>

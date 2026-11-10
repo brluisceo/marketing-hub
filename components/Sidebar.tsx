@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Icone = {
   inicio: <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9v11h14V9" /></svg>,
@@ -44,31 +44,58 @@ function Perfil({ u }: { u: Usuario }) {
 
 export default function Sidebar({ demo, usuario, admin = false }: { demo: boolean; usuario: Usuario | null; admin?: boolean }) {
   const path = usePathname();
-  const ativo = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-  const item = (href: string, label: string, icon: React.ReactNode, extra?: React.ReactNode) => (
-    <Link href={href} className={'nav-item' + (ativo(href) ? ' is-active' : '')} aria-current={ativo(href) ? 'page' : undefined}>
+  // Celular e tablet: o menu fica escondido atrás do botão "Menu" da barra do topo.
+  const [aberto, setAberto] = useState(false);
+  useEffect(() => setAberto(false), [path]);
+  useEffect(() => {
+    if (!aberto) return;
+    const tecla = (e: KeyboardEvent) => { if (e.key === 'Escape') setAberto(false); };
+    document.addEventListener('keydown', tecla);
+    document.body.classList.add('menu-aberto');
+    return () => { document.removeEventListener('keydown', tecla); document.body.classList.remove('menu-aberto'); };
+  }, [aberto]);
+  // `exato`: a visão geral de um módulo (/instagram) não acende junto com as telas dele (/instagram/posts).
+  const ativo = (href: string, exato = false) => path === href || (!exato && href !== '/' && path.startsWith(href + '/'));
+  const item = (href: string, label: string, icon: React.ReactNode, extra?: React.ReactNode, exato = false) => (
+    <Link href={href} className={'nav-item' + (ativo(href, exato) ? ' is-active' : '')} aria-current={ativo(href, exato) ? 'page' : undefined}>
       <span className="nav-icon">{icon}</span>
       {label}
       {extra}
     </Link>
   );
   return (
-    <nav className="sidebar" aria-label="Menu principal">
+    <>
+    <header className="topo-movel">
       <Link href="/" className="brand brand-link"><span className="brand-mark">M</span><span>Marketing HUB</span></Link>
+      <span className="spacer" />
+      <button type="button" className="btn menu-btn" aria-expanded={aberto} aria-controls="menu-principal" onClick={() => setAberto(true)}>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+        Menu
+      </button>
+    </header>
+    {aberto ? <div className="menu-fundo" aria-hidden="true" onClick={() => setAberto(false)} /> : null}
+    <nav id="menu-principal" className={'sidebar' + (aberto ? ' is-aberto' : '')} aria-label="Menu principal">
+      <div className="sidebar-topo">
+        <Link href="/" className="brand brand-link"><span className="brand-mark">M</span><span>Marketing HUB</span></Link>
+        <button type="button" className="btn menu-fechar" onClick={() => setAberto(false)}>
+          <span className="sr-only">Fechar menu</span>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
       {item('/', 'Início', Icone.inicio)}
       <span className="nav-group">Instagram</span>
-      {item('/instagram', 'Visão geral', Icone.visao)}
-      {item('/posts', 'Posts', Icone.posts)}
-      {item('/stories', 'Stories', Icone.stories)}
-      {item('/conta', 'Conta', Icone.conta)}
-      {item('/sobre', 'Sobre', Icone.sobre)}
+      {item('/instagram', 'Visão geral', Icone.visao, undefined, true)}
+      {item('/instagram/posts', 'Posts', Icone.posts)}
+      {item('/instagram/stories', 'Stories', Icone.stories)}
+      {item('/instagram/conta', 'Conta', Icone.conta)}
+      {item('/instagram/sobre', 'Sobre', Icone.sobre)}
       <span className="nav-group">Planejamento</span>
       {item('/calendario', 'Calendário e aprovação', Icone.cal, <span className="nav-soon">em breve</span>)}
       {admin ? (
         <>
           <span className="nav-group">Administração</span>
-          {item('/usuarios', 'Usuários', Icone.usuarios)}
-          {item('/acessos', 'Acessos', Icone.acessos)}
+          {item('/admin/usuarios', 'Usuários', Icone.usuarios)}
+          {item('/admin/acessos', 'Acessos', Icone.acessos)}
         </>
       ) : null}
       <div className="sidebar-foot">
@@ -88,5 +115,6 @@ export default function Sidebar({ demo, usuario, admin = false }: { demo: boolea
         </div>
       </div>
     </nav>
+    </>
   );
 }

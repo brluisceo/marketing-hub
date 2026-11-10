@@ -34,7 +34,7 @@ export default async function Conta({ searchParams }: { searchParams: Promise<{ 
         <span className="spacer" />
         <nav className="seg" aria-label="Período">
           {['7', '30', '90'].map((d) => (
-            <Link key={d} href={`/conta?dias=${d}`} className={d === dias ? 'is-on' : ''} aria-current={d === dias ? 'page' : undefined}>{d} dias</Link>
+            <Link key={d} href={`/instagram/conta?dias=${d}`} className={d === dias ? 'is-on' : ''} aria-current={d === dias ? 'page' : undefined}>{d} dias</Link>
           ))}
         </nav>
       </header>

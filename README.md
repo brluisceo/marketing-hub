@@ -78,7 +78,7 @@ Como funciona por dentro: o site manda a pessoa para o Google com proteções co
 ## Estrutura
 
 - `app/(hub)/` — tela inicial do hub (`/`)
-- `app/(app)/` — telas com menu lateral (instagram, posts, detalhe, stories, conta, calendário)
+- `app/(app)/` — telas com menu lateral; cada módulo tem sua pasta (`instagram/` com posts, detalhe, stories, conta e sobre; `calendario/`; `admin/` com usuários e acessos)
 - `lib/modulos.ts` — textos da tela inicial (sites, avisos, coletas)
 - `app/login`, `app/api/auth/google`, `app/api/auth/callback`, `app/api/logout` — login com Google
 - `lib/session.ts` (sessão assinada) e `lib/google.ts` (protocolo do Google)
