@@ -1,7 +1,8 @@
 import { unstable_cache } from 'next/cache';
 import * as dados from './dados';
+import { lerSites, sitesExemplo } from './kastir';
 import { mock } from './mock';
-import type { ContaResp, Overview, PostResp, PostsResp, StoriesResp } from './types';
+import type { ContaResp, Overview, PostResp, PostsResp, SitesResp, StoriesResp } from './types';
 
 // Fonte dos números: Postgres (padrão quando há DATABASE_URL) ou a API do hub no n8n.
 // HUB_FONTE=n8n volta para a API antiga sem mexer no código (plano B).
@@ -39,7 +40,19 @@ const banco = {
   stories: doBanco('stories', dados.stories)
 };
 
-type FiltroPosts = { mes?: string; formato?: string; ordem?: string; dir?: string; busca?: string; pagina?: string; por_pagina?: string };
+// Sites no ar: o n8n copia o Kastir para o banco a cada 5 min; aqui fica guardado 60 s.
+// Sem nenhuma leitura do n8n ainda, mostra o retrato de exemplo.
+const sitesNoBanco = !!process.env.DATABASE_URL && process.env.HUB_MOCK !== '1';
+const doBancoSites = unstable_cache(async (): Promise<SitesResp> => {
+  try {
+    return (await lerSites()) ?? sitesExemplo();
+  } catch (e) {
+    console.error(`[sites] ${(e as Error).message}`);
+    throw new Error('Não foi possível ler as páginas do Kastir no banco. Confira DATABASE_URL e o fluxo [HUB] Kastir — páginas no n8n.');
+  }
+}, ['hub', 'sites'], { revalidate: 60 });
+
+type FiltroPosts ={ mes?: string; formato?: string; ordem?: string; dir?: string; busca?: string; pagina?: string; por_pagina?: string };
 
 export const hub = {
   overview: (mes?: string) => (usaBanco && !modoDemo ? banco.overview(mes) : chamar<Overview>({ recurso: 'overview', mes })),
@@ -47,6 +60,7 @@ export const hub = {
   post: (id: string) => (usaBanco && !modoDemo ? banco.post(id) : chamar<PostResp>({ recurso: 'post', post_id: id })),
   conta: (dias: string) => (usaBanco && !modoDemo ? banco.conta(dias) : chamar<ContaResp>({ recurso: 'conta', dias })),
   stories: (mes?: string) => (usaBanco && !modoDemo ? banco.stories(mes) : chamar<StoriesResp>({ recurso: 'stories', mes })),
+  sites: (): Promise<SitesResp> => (sitesNoBanco ? doBancoSites() : Promise.resolve(sitesExemplo())),
   // Sem cache: a faixa "atualizado há..." precisa do horário real. Falha aqui não derruba a página.
   ultimaColeta: (): Promise<string | null> =>
     usaBanco && !modoDemo ? dados.ultimaColeta().catch(() => null) : Promise.resolve(null),

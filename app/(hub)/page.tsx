@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { hub, modoDemo } from '@/lib/hub';
 import { compacto, dataExtensa, deltaPct, deltaPp, mesAtual, nomeMes, num, pct, saudacao, type Delta } from '@/lib/format';
-import { COLETAS, SITES, STATUS_ROTULO, avisos, type Aviso, type Status } from '@/lib/modulos';
+import { COLETAS, STATUS_ROTULO, avisos, type Aviso, type Status } from '@/lib/modulos';
 import { usuarioAtual } from '@/lib/acesso';
 import { pode } from '@/lib/session';
-import type { Overview } from '@/lib/types';
+import type { Overview, SitesResp } from '@/lib/types';
 
 export const metadata = { title: 'Início · Marketing HUB' };
 
@@ -30,7 +30,7 @@ function Variacao({ d }: { d: Delta }) {
   return d.texto ? <span className={`delta delta-${d.tom}`}>{d.texto}</span> : null;
 }
 
-function CardModulo({ cor, icone, titulo, status, href, children }: { cor: string; icone: React.ReactNode; titulo: string; status: Status; href?: string; children: React.ReactNode }) {
+function CardModulo({ cor, icone, titulo, status, href, children }: { cor: string; icone: React.ReactNode; titulo: string; status: Status | 'erro'; href?: string; children: React.ReactNode }) {
   const cabeca = (
     <div className="hub-card-head">
       <span className={`hub-icone hub-icone-${cor}`}>{icone}</span>
@@ -94,23 +94,39 @@ function CardInstagram({ o, erro }: { o: Overview | null; erro: string }) {
   );
 }
 
+function CardSites({ r }: { r: SitesResp | null }) {
+  return (
+    <CardModulo cor="verde" icone={Icone.sites} titulo="Sites no ar" status={r ? 'ativo' : 'erro'} href="/sites">
+      <p className="hub-texto">As landing pages no ar e de qual campanha é cada uma.</p>
+      <ul className="hub-sites">
+        <li>
+          <span className={`hub-ponto ${r ? 'hub-ponto-verde' : 'hub-ponto-cinza'}`} />
+          <span className="ellipsis">{r ? r.site.replace(/^https?:\/\//, '') : 'lp.contadorceo.com.br'}</span>
+          <span className="spacer" />
+          <span className="muted small">{r ? `${num(r.paginas.length)} páginas no ar` : 'sem conexão'}</span>
+        </li>
+      </ul>
+    </CardModulo>
+  );
+}
+
 export default async function Inicio() {
   const s = await usuarioAtual();
   const nome = s?.nome || s?.email.split('@')[0] || '';
   const primeiroNome = nome.split(/\s+/)[0];
   const mes = mesAtual();
 
-  let o: Overview | null = null;
-  let erro = '';
-  try {
-    o = await hub.overview(mes);
-  } catch (e) {
-    erro = (e as Error).message;
-  }
+  // Instagram e Kastir juntos: se um falhar, o cartão dele mostra "Sem conexão" e o resto abre igual.
+  const [ig, st] = await Promise.allSettled([hub.overview(mes), hub.sites()]);
+  const o: Overview | null = ig.status === 'fulfilled' ? ig.value : null;
+  const erro = ig.status === 'rejected' ? (ig.reason as Error).message : '';
+  const sites: SitesResp | null = st.status === 'fulfilled' ? st.value : null;
 
   const lista: Aviso[] = [];
   if (modoDemo) lista.push({ titulo: 'Modo demonstração ligado', texto: 'Os números do Instagram são de exemplo. Configure a API do HUB para ver os dados reais.', tom: 'laranja' });
   else if (!o) lista.push({ titulo: 'API do HUB sem resposta', texto: 'O fluxo [HUB] API do hub no n8n pode estar desativado ou com a chave diferente.', tom: 'laranja' });
+  if (sites?.exemplo) lista.push({ titulo: 'Sites no ar com dados de exemplo', texto: 'Falta a chave de leitura do Kastir. Até ela chegar, o módulo mostra um retrato de 11/11/2026.', tom: 'laranja' });
+  else if (!sites) lista.push({ titulo: 'Kastir sem resposta', texto: 'Não foi possível ler as landing pages agora. Confira a chave do Kastir no servidor.', tom: 'laranja' });
   lista.push(...avisos(nomeMes(mes, false)));
 
   return (
@@ -160,14 +176,7 @@ export default async function Inicio() {
               <CardModulo cor="laranja" icone={Icone.trafego} titulo="Tráfego pago" status="implantacao">
                 <p className="hub-texto">Investimento no Meta Ads e o que ele virou no funil: leads, reuniões, vendas e retorno.</p>
               </CardModulo>
-              <CardModulo cor="verde" icone={Icone.sites} titulo="Sites no ar" status="em_breve">
-                <p className="hub-texto">Se cada site está no ar, a velocidade e os formulários funcionando.</p>
-                <ul className="hub-sites">
-                  {SITES.map((x) => (
-                    <li key={x.dominio}><span className="hub-ponto hub-ponto-cinza" /><span className="ellipsis">{x.dominio}</span><span className="spacer" /><span className="muted small">{x.situacao}</span></li>
-                  ))}
-                </ul>
-              </CardModulo>
+              <CardSites r={sites} />
               <CardModulo cor="vermelho" icone={Icone.calendario} titulo="Calendário e aprovação" status="ativo" href="/calendario">
                 <p className="hub-texto">Planejar os posts do mês, aprovar e receber o aviso para publicar pelo app.</p>
               </CardModulo>
@@ -194,7 +203,7 @@ export default async function Inicio() {
               <ul className="hub-coletas">
                 {COLETAS.map((c) => (
                   <li key={c.nome}>
-                    <span className={`hub-ponto ${c.ligada && o ? 'hub-ponto-verde' : 'hub-ponto-cinza'}`} />
+                    <span className={`hub-ponto ${c.ligada && (c.fonte === 'sites' ? sites && !sites.exemplo : o) ? 'hub-ponto-verde' : 'hub-ponto-cinza'}`} />
                     <span>{c.nome}</span>
                     <span className="spacer" />
                     <span className="muted small">{c.frequencia}</span>

@@ -56,3 +56,9 @@ export type StoriesResp = {
   mes: string; mes_anterior: string; gerado_em: string; coleta_desde: string | null;
   kpis: StoriesKpis; kpis_mes_anterior: StoriesKpis; itens: Story[];
 };
+
+// Sites no ar: landing pages do Kastir que estão no ar (lib/kastir.ts lê do banco, onde o n8n grava).
+export type PaginaSite = { id: string; titulo: string; url: string; pasta_id: string | null; publicada_em: string | null };
+export type PastaSite = { id: string; nome: string; cor: string | null };
+// gerado_em = última leitura do Kastir pelo n8n. exemplo = retrato de lib/mock-sites.ts (o n8n ainda não leu).
+export type SitesResp = { site: string; paginas: PaginaSite[]; pastas: PastaSite[]; gerado_em: string; exemplo?: boolean };

@@ -77,7 +77,8 @@ export function haQuanto(iso?: string): string {
   if (min < 60) return `há ${min} min`;
   const h = Math.round(min / 60);
   if (h < 24) return `há ${h} h`;
-  return `há ${Math.round(h / 24)} dias`;
+  const d = Math.round(h / 24);
+  return d === 1 ? 'há 1 dia' : `há ${d} dias`;
 }
 
 export function vezes(a: number, b: number): string {

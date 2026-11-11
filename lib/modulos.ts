@@ -9,10 +9,17 @@ export const STATUS_ROTULO: Record<Status, string> = {
   em_breve: 'Em breve'
 };
 
-export const SITES: { dominio: string; situacao: string }[] = [
-  { dominio: 'contadorceo.com.br', situacao: 'sem verificação ainda' },
-  { dominio: 'contador100k.com.br', situacao: 'sem verificação ainda' }
-];
+// O que é cada código de pasta do Kastir: o comercial vê o nome, com o código ao lado.
+// Pasta que não estiver aqui (código novo, "Formulários", "Outros"...) aparece com o próprio nome, depois das campanhas.
+export const CAMPANHAS: Record<string, string> = {
+  '32CEO2026': 'O Plano Contábil',
+  '30CEO2026': 'Alavanca Contábil Uberlândia',
+  '29CEO2026': 'CEO Capital Advisors',
+  '28CEO2026': 'Imersão de vendas',
+  '27CEO2026': 'Imersão de vendas',
+  '17CEO2026': 'Contador CEO Experience',
+  '08CEO2026': 'Diagnóstico'
+};
 
 // tom: laranja = pendência, azul = informativo.
 export type Aviso = { titulo: string; texto: string; tom: 'laranja' | 'azul' };
@@ -24,10 +31,11 @@ export function avisos(mesNome: string): Aviso[] {
   ];
 }
 
-// ligada: false = ponto cinza ("ainda desligada").
-export const COLETAS: { nome: string; frequencia: string; ligada: boolean }[] = [
-  { nome: 'Instagram · posts', frequencia: 'a cada 5 min', ligada: true },
-  { nome: 'Instagram · stories', frequencia: 'a cada 5 min', ligada: true },
-  { nome: 'Instagram · conta', frequencia: 'diária', ligada: true },
-  { nome: 'Meta Ads e funil', frequencia: 'ainda desligada', ligada: false }
+// ligada: false = ponto cinza ("ainda desligada"). `fonte`: o ponto só fica verde se essa fonte respondeu agora.
+export const COLETAS: { nome: string; frequencia: string; ligada: boolean; fonte: 'instagram' | 'sites' | null }[] = [
+  { nome: 'Instagram · posts', frequencia: 'a cada 5 min', ligada: true, fonte: 'instagram' },
+  { nome: 'Instagram · stories', frequencia: 'a cada 5 min', ligada: true, fonte: 'instagram' },
+  { nome: 'Instagram · conta', frequencia: 'diária', ligada: true, fonte: 'instagram' },
+  { nome: 'Sites · Kastir', frequencia: 'a cada 5 min', ligada: true, fonte: 'sites' },
+  { nome: 'Meta Ads e funil', frequencia: 'ainda desligada', ligada: false, fonte: null }
 ];

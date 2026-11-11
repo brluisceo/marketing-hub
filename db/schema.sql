@@ -169,3 +169,41 @@ CREATE INDEX IF NOT EXISTS calendario_historico_post_idx ON calendario_historico
 REVOKE ALL ON calendario_posts, calendario_historico FROM hub_coleta;
 GRANT SELECT, INSERT, UPDATE ON calendario_posts TO hub_site;
 GRANT SELECT, INSERT ON calendario_historico TO hub_site;
+
+-- Sites no ar: landing pages do Kastir (lp.contadorceo.com.br), copiadas pelo n8n a cada 5 min
+-- (fluxo "[HUB] Kastir — páginas"). O site só lê. situacao: no_ar, fora_do_ar (já foi publicada e
+-- voltou a rascunho), rascunho (nunca publicada) ou removida (sumiu da lista do Kastir: foi para a lixeira).
+CREATE TABLE IF NOT EXISTS sites_paginas (
+  pagina_id      text PRIMARY KEY,
+  site           text NOT NULL,                  -- https://lp.contadorceo.com.br
+  titulo         text NOT NULL,
+  slug           text NOT NULL,
+  situacao       text NOT NULL CHECK (situacao IN ('no_ar', 'fora_do_ar', 'rascunho', 'removida')),
+  pasta_id       text,
+  autor          text,
+  inicial        boolean NOT NULL DEFAULT false, -- página inicial do site (endereço sem /slug)
+  publicada_em   timestamptz,                    -- última publicação
+  situacao_desde timestamptz NOT NULL DEFAULT now(),
+  atualizado_em  timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS sites_pastas (
+  pasta_id      text PRIMARY KEY,
+  nome          text NOT NULL,
+  cor           text,
+  atualizado_em timestamptz NOT NULL DEFAULT now()
+);
+
+-- Cada mudança de situação de uma página. de = NULL: primeira vez que a coleta viu a página.
+CREATE TABLE IF NOT EXISTS sites_historico (
+  id        bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  em        timestamptz NOT NULL DEFAULT now(),
+  pagina_id text NOT NULL,
+  titulo    text,
+  de        text,
+  para      text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sites_historico_em_idx ON sites_historico (em DESC);
+
+GRANT SELECT, INSERT, UPDATE ON sites_paginas, sites_pastas, sites_historico TO hub_coleta;
+GRANT SELECT ON sites_paginas, sites_pastas, sites_historico TO hub_site;

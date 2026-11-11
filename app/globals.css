@@ -688,3 +688,17 @@ body:has(.janela) { overflow: hidden; }
 .aviso-x:hover { background: var(--bg-fill); color: var(--text); }
 @media (pointer: coarse) { .aviso-x { width: 36px; height: 36px; } }
 @media (prefers-reduced-motion: reduce) { .aviso, .aviso.is-saindo { animation: none; } }
+
+/* Sites no ar (landing pages do Kastir): uma linha de título por campanha, dentro da própria tabela. */
+.sites-grupo th { padding-top: 22px; padding-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--text); }
+.sites-grupo-nome { display: flex; align-items: center; gap: 8px; }
+.sites-grupo-nome .muted { font-size: 12px; font-weight: 500; }
+.pasta-ponto { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #aeaeb2; }
+.sites-pagina { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; min-width: 0; }
+.sites-endereco { white-space: nowrap; }
+/* Bloco estreito (celular): a coluna "Endereço" sai e o link vai para baixo do nome da página. */
+.sites-endereco-curto { display: none; overflow-wrap: anywhere; }
+@container (max-width: 460px) { .sites-endereco-curto { display: inline; } }
+/* Cartão do hub: quando o domínio e a situação não cabem lado a lado (celular), a situação desce inteira. */
+.hub-sites li { flex-wrap: wrap; row-gap: 2px; }
+.hub-sites li > .muted { margin-left: auto; white-space: nowrap; }

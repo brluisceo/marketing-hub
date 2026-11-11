@@ -93,7 +93,7 @@ Estes arquivos são de todos. Mexa neles só no fim e combine antes, porque muda
 
 - [components/Sidebar.tsx](../components/Sidebar.tsx): o grupo "Tráfego pago" no menu.
 - [app/(hub)/page.tsx](../app/(hub)/page.tsx): o cartão "Tráfego pago" da tela inicial (ligar o link e trocar o status).
-- [lib/modulos.ts](../lib/modulos.ts): a linha "Meta Ads e funil" nas coletas e o aviso de pendências.
+- [lib/modulos.ts](../lib/modulos.ts): a linha "Meta Ads e funil" nas coletas (o campo `fonte` diz de qual dado depende o ponto verde; hoje `instagram` ou `sites`: acrescente `trafego` e trate em [app/(hub)/page.tsx](../app/(hub)/page.tsx)) e o aviso de pendências.
 
 ## Regras que não podem ser quebradas
 
