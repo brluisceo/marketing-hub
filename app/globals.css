@@ -249,6 +249,16 @@ h1, h2, p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .login-btn, .login-btn svg, .login-btn::after { transition: none; } .login-btn:hover, .login-btn:hover svg { transform: none; } .login-btn::after { display: none; } }
 .login-dica { color: var(--text-2); font-size: 12.5px; line-height: 1.5; text-align: center; }
 .login-dica strong { color: var(--text); font-weight: 600; }
+/* Convite para instalar o HUB como app (só no celular; some dentro do app instalado). */
+.login-app { display: flex; gap: 12px; align-items: flex-start; padding-top: 20px; border-top: 1px solid rgba(29, 29, 31, 0.08); }
+.login-app-icone { flex: none; width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 700; background: linear-gradient(180deg, #2b8cf3 0%, var(--accent) 55%, #005fc4 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28); }
+.login-app-texto { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.login-app-texto strong { font-size: 14px; font-weight: 600; color: var(--text); }
+.login-app-texto p { color: var(--text-2); font-size: 13px; line-height: 1.45; }
+.login-app-texto b { font-weight: 600; color: var(--text); }
+.login-app-texto svg { vertical-align: -2px; }
+.login-app-btn { flex: none; align-self: center; min-height: 34px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+@media (display-mode: standalone) { .login-app { display: none; } }
 .login-rodape { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; padding: 20px 16px 24px; color: var(--text-2); font-size: 12px; text-align: center; }
 @keyframes login-entra { from { opacity: 0; transform: translateY(6px) scale(0.99); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .login-card, .login-bolha { animation: none; } }

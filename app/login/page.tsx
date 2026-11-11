@@ -1,5 +1,6 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import InstalarApp from '@/components/InstalarApp';
 import { configGoogle } from '@/lib/google';
 import { COOKIE, DOMINIO, destinoSeguro, lerSessao, segredoConfigurado } from '@/lib/session';
 
@@ -31,6 +32,9 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   const configurado = configGoogle() && segredoConfigurado();
   // Object.hasOwn: "?erro=toString" não pode virar uma função herdada do objeto.
   const erro = !configurado ? MENSAGENS.config : sp.erro ? (Object.hasOwn(MENSAGENS, sp.erro) ? MENSAGENS[sp.erro] : MENSAGENS.falha) : null;
+  // Convite para instalar como app: só no celular. Decidido aqui (e não no navegador) para a tela não "pular" ao carregar.
+  const ua = (await headers()).get('user-agent') ?? '';
+  const celular = /iPhone|iPad|iPod/.test(ua) ? 'ios' : /Android/.test(ua) ? 'android' : null;
   return (
     <main className="login">
       <span className="login-bolha login-bolha-1" aria-hidden="true" />
@@ -58,6 +62,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
               Use sua conta Google <strong>@{DOMINIO}</strong>. O acesso é liberado para quem está na equipe cadastrada.
             </p>
           </div>
+          {celular && <InstalarApp plataforma={celular} />}
         </div>
       </div>
       <footer className="login-rodape">

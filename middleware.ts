@@ -10,5 +10,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!login|api/auth/|_next/static|_next/image|favicon.ico|icon.svg).*)']
+  // Ícones e manifesto do app ficam livres: o celular os pede sem a sessão (na tela de login e ao instalar).
+  matcher: ['/((?!login|api/auth/|_next/static|_next/image|favicon.ico|icon.svg|manifest.webmanifest|apple-touch-icon|icons/).*)']
 };
