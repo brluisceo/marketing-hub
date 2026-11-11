@@ -2,7 +2,7 @@
 
 Central de métricas do Instagram @rogerio.fameli. Lê os dados coletados pelo n8n (tabelas HUB_) através do fluxo **[HUB] API do hub**.
 
-Telas desta versão: Início (o hub, com todos os módulos do marketing), Instagram (Visão geral, Posts, Detalhe do post, Stories e Conta). Tráfego pago, Sites no ar, Calendário e aprovação e Entregáveis aparecem como "em breve" / "em implantação".
+Telas desta versão: Início (o hub, com todos os módulos do marketing), Instagram (Visão geral, Posts, Detalhe do post, Stories e Conta) e Calendário e aprovação (grade do mês e quadro por etapa). Tráfego pago, Sites no ar e Entregáveis aparecem como "em breve" / "em implantação".
 
 ## Como funciona
 

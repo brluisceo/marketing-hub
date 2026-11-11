@@ -40,10 +40,24 @@ export default function Sobre() {
               </tbody>
             </table>
           </div>
-          <p>
-            Depois de cada busca, o site leva até 1 minuto para mostrar os números novos. A própria Meta também pode demorar alguns minutos para
-            atualizar os números dela.
-          </p>
+          <ul>
+            <li>
+              <span className="strong">Não precisa recarregar a página (F5).</span> Quando chega a hora da próxima busca, a tela troca os números sozinha,
+              sem perder o filtro ou o mês escolhido.
+            </li>
+            <li>
+              Isso só acontece com a aba aberta na frente. Se você estava em outra aba ou outro programa, a tela se atualiza em poucos segundos quando você volta.
+            </li>
+            <li>
+              Depois de cada busca, o site leva até 1 minuto para mostrar os números novos. Por isso, às vezes a faixa do topo já diz &quot;agora há pouco&quot;
+              e os números ainda são da busca anterior. Eles acertam na atualização seguinte (até 5 min). Se tiver pressa, recarregue a página.
+            </li>
+            <li>
+              Se a busca ficar mais de 15 minutos sem acontecer, aparece um ponto laranja com o aviso &quot;a coleta está atrasada&quot;. A tela continua
+              tentando sozinha.
+            </li>
+            <li>A própria Meta também pode demorar alguns minutos para atualizar os números dela.</li>
+          </ul>
         </section>
 
         <section className="panel">

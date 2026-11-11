@@ -1,19 +1,12 @@
 // Leitura dos dados do Instagram direto do Postgres (usuário hub_site). Só no servidor.
 // Reproduz exatamente a lógica dos nós de código do fluxo "[HUB] API do hub" no n8n,
 // para que a troca de fonte não mude nenhum número na tela.
-import pg from 'pg';
+import { exigirBanco } from './db';
 import type { ContaResp, Kpis, Overview, Post, PostResp, PostsResp, StoriesKpis, StoriesResp, Story } from './types';
 
-let pool: pg.Pool | null = null;
-
-function banco(): pg.Pool {
-  if (!process.env.DATABASE_URL) throw new Error('O banco não está configurado (DATABASE_URL vazia).');
-  pool ??= new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 3, idleTimeoutMillis: 10_000 });
-  return pool;
-}
-
+// Mesmo grupo de conexões do resto do site (lib/db.ts).
 async function linhas<T>(sql: string, params: unknown[] = []): Promise<T[]> {
-  return (await banco().query(sql, params)).rows as T[];
+  return (await exigirBanco().query(sql, params)).rows as T[];
 }
 
 // Datas no mesmo formato que o n8n devolvia (toISOString: 2026-11-06T10:00:04.000Z).

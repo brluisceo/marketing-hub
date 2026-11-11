@@ -1,18 +1,31 @@
 // Conexão com o Postgres (usuário hub_site). Só no servidor.
-// Grava só em `acessos`, `usuarios` e `usuarios_log`; o resto é leitura.
+// Grava só em `acessos`, `usuarios`, `usuarios_log` e nas tabelas do calendário (lib/calendario.ts); o resto é leitura.
 import { Pool } from 'pg';
 import { PAPEIS, papelValido, type Papel } from './session';
 
-let pool: Pool | null = null;
+// Um só grupo de conexões para o site inteiro (lib/dados.ts usa este também). Fica em `globalThis`
+// porque no modo dev o Next recarrega os módulos a cada mudança e cada cópia abriria conexões novas.
+// As conexões ficam abertas 5 min sem uso: o banco está a ~140 ms daqui e abrir uma nova (TLS) custa ~1 s.
+const global_ = globalThis as typeof globalThis & { __hubConexoes?: Pool };
 
-function banco(): Pool | null {
+export function banco(): Pool | null {
   if (!process.env.DATABASE_URL) return null;
-  // Poucas conexões: na Vercel cada instância abre a sua, e o pooler do Neon cuida do resto.
-  pool ??= new Pool({ connectionString: process.env.DATABASE_URL, max: 3, idleTimeoutMillis: 10_000 });
-  return pool;
+  if (!global_.__hubConexoes) {
+    const p = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 8,
+      idleTimeoutMillis: 5 * 60_000,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 30_000
+    });
+    // Conexão parada que cai (rede, reinício do banco) não pode derrubar o site: o grupo descarta e abre outra.
+    p.on('error', (e) => console.error(`[db] conexão parada caiu: ${e.message}`));
+    global_.__hubConexoes = p;
+  }
+  return global_.__hubConexoes;
 }
 
-function exigirBanco(): Pool {
+export function exigirBanco(): Pool {
   const db = banco();
   if (!db) throw new Error('O banco não está configurado (DATABASE_URL vazia).');
   return db;

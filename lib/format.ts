@@ -99,3 +99,35 @@ export function dataExtensa(d = new Date()): string {
   const s = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'long', day: 'numeric', month: 'long' }).format(d);
   return s[0].toUpperCase() + s.slice(1);
 }
+
+// Datas sem hora ("2026-11-14", do calendário): lidas ao meio-dia UTC para o fuso não trocar o dia.
+const doDia = (ymd: string) => new Date(`${ymd}T12:00:00Z`);
+
+// Hoje em São Paulo, "yyyy-mm-dd".
+export function diaAtual(d = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+}
+
+// "sex"
+export function diaSemana(ymd: string): string {
+  return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'short' }).format(doDia(ymd)).replace('.', '');
+}
+
+// "14/11"
+export function diaMes(ymd: string): string {
+  const [, m, d] = ymd.split('-');
+  return `${d}/${m}`;
+}
+
+// "Sábado, 14 de novembro"
+export function diaExtenso(ymd: string): string {
+  const s = new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' }).format(doDia(ymd));
+  return s[0].toUpperCase() + s.slice(1);
+}
+
+// Mês anterior (passo -1) ou seguinte (+1) de "yyyy-MM".
+export function mesVizinho(ym: string, passo: number): string {
+  const [a, m] = ym.split('-').map(Number);
+  const d = new Date(Date.UTC(a, m - 1 + passo, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}

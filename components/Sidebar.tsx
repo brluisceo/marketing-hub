@@ -56,6 +56,8 @@ export default function Sidebar({ demo, usuario, admin = false }: { demo: boolea
   }, [aberto]);
   // `exato`: a visão geral de um módulo (/instagram) não acende junto com as telas dele (/instagram/posts).
   const ativo = (href: string, exato = false) => path === href || (!exato && href !== '/' && path.startsWith(href + '/'));
+  // Cada módulo mostra só as próprias telas; para trocar de módulo, volta-se ao hub (Início).
+  const modulo = path.split('/')[1] || '';
   const item = (href: string, label: string, icon: React.ReactNode, extra?: React.ReactNode, exato = false) => (
     <Link href={href} className={'nav-item' + (ativo(href, exato) ? ' is-active' : '')} aria-current={ativo(href, exato) ? 'page' : undefined}>
       <span className="nav-icon">{icon}</span>
@@ -83,15 +85,23 @@ export default function Sidebar({ demo, usuario, admin = false }: { demo: boolea
         </button>
       </div>
       {item('/', 'Início', Icone.inicio)}
-      <span className="nav-group">Instagram</span>
-      {item('/instagram', 'Visão geral', Icone.visao, undefined, true)}
-      {item('/instagram/posts', 'Posts', Icone.posts)}
-      {item('/instagram/stories', 'Stories', Icone.stories)}
-      {item('/instagram/conta', 'Conta', Icone.conta)}
-      {item('/instagram/sobre', 'Sobre', Icone.sobre)}
-      <span className="nav-group">Planejamento</span>
-      {item('/calendario', 'Calendário e aprovação', Icone.cal, <span className="nav-soon">em breve</span>)}
-      {admin ? (
+      {modulo === 'instagram' ? (
+        <>
+          <span className="nav-group">Instagram</span>
+          {item('/instagram', 'Visão geral', Icone.visao, undefined, true)}
+          {item('/instagram/posts', 'Posts', Icone.posts)}
+          {item('/instagram/stories', 'Stories', Icone.stories)}
+          {item('/instagram/conta', 'Conta', Icone.conta)}
+          {item('/instagram/sobre', 'Sobre', Icone.sobre)}
+        </>
+      ) : null}
+      {modulo === 'calendario' ? (
+        <>
+          <span className="nav-group">Planejamento</span>
+          {item('/calendario', 'Calendário e aprovação', Icone.cal)}
+        </>
+      ) : null}
+      {modulo === 'admin' && admin ? (
         <>
           <span className="nav-group">Administração</span>
           {item('/admin/usuarios', 'Usuários', Icone.usuarios)}

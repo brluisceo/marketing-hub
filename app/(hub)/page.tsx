@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Atualizacao from '@/components/Atualizacao';
 import { hub, modoDemo } from '@/lib/hub';
 import { compacto, dataExtensa, deltaPct, deltaPp, mesAtual, nomeMes, num, pct, saudacao, type Delta } from '@/lib/format';
 import { COLETAS, SITES, STATUS_ROTULO, avisos, type Aviso, type Status } from '@/lib/modulos';
@@ -103,13 +102,11 @@ export default async function Inicio() {
 
   let o: Overview | null = null;
   let erro = '';
-  const ultimaColeta = hub.ultimaColeta();
   try {
     o = await hub.overview(mes);
   } catch (e) {
     erro = (e as Error).message;
   }
-  const ultima = await ultimaColeta;
 
   const lista: Aviso[] = [];
   if (modoDemo) lista.push({ titulo: 'Modo demonstração ligado', texto: 'Os números do Instagram são de exemplo. Configure a API do HUB para ver os dados reais.', tom: 'laranja' });
@@ -125,7 +122,6 @@ export default async function Inicio() {
       <header className="hub-topo">
         <div className="hub-largura hub-topo-dentro">
           <Link href="/" className="brand hub-brand"><span className="brand-mark">M</span><span>Marketing HUB</span></Link>
-          {ultima ? <Atualizacao ultima={ultima} agora={Date.now()} className="atualizacao-hub" /> : null}
           <span className="spacer" />
           {/* Por enquanto a busca procura nas legendas dos posts. */}
           <form action="/instagram/posts" method="get" className="hub-busca" role="search">
@@ -172,7 +168,7 @@ export default async function Inicio() {
                   ))}
                 </ul>
               </CardModulo>
-              <CardModulo cor="vermelho" icone={Icone.calendario} titulo="Calendário e aprovação" status="em_breve" href="/calendario">
+              <CardModulo cor="vermelho" icone={Icone.calendario} titulo="Calendário e aprovação" status="ativo" href="/calendario">
                 <p className="hub-texto">Planejar os posts do mês, aprovar e receber o aviso para publicar pelo app.</p>
               </CardModulo>
               <CardModulo cor="roxo" icone={Icone.entregaveis} titulo="Entregáveis" status="em_breve">

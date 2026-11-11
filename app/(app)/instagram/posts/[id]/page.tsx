@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import Bars from '@/components/Bars';
+import Bars, { type Barra } from '@/components/Bars';
 import ErroApi from '@/components/ErroApi';
 import Thumb from '@/components/Thumb';
 import { hub } from '@/lib/hub';
-import { dataCurta, dataHora, haQuanto, nomeMes, num, pct, vezes } from '@/lib/format';
+import { compacto, dataCurta, dataHora, haQuanto, nomeMes, num, pct, vezes } from '@/lib/format';
 import type { Overview, Post, PostsResp } from '@/lib/types';
 
 export const metadata = { title: 'Post · Marketing HUB' };
@@ -25,6 +25,16 @@ export default async function DetalhePost({ params }: { params: Promise<{ id: st
     return <ErroApi mensagem={(e as Error).message} />;
   }
   if (!p) notFound();
+  // Uma barra por dia, com a última leitura do dia: uma coleta extra no mesmo dia repetia a data no gráfico.
+  const porDia = new Map<string, number>();
+  for (const h of historico) porDia.set(dataCurta(h.coletado_em), h.alcance);
+  const dias = [...porDia];
+  const passo = dias.length <= 14 ? 1 : Math.ceil(dias.length / 10); // até 14 dias cabe o número de todos
+  const evolucao: Barra[] = dias.map(([dia, alcance], i) => {
+    const marcado = i % passo === 0;
+    const ultimo = i === dias.length - 1;
+    return { rotulo: marcado ? dia : '', valor: alcance, texto: marcado || ultimo ? compacto(alcance) : '', destaque: ultimo };
+  });
   const k = o.kpis;
   const media = (campo: keyof typeof k) => (k.posts ? Number(k[campo]) / k.posts : 0);
   const posicao = ranking.itens.findIndex((x) => x.post_id === p!.post_id) + 1;
@@ -85,8 +95,8 @@ export default async function DetalhePost({ params }: { params: Promise<{ id: st
           </dl>
           <section className="panel">
             <div className="panel-head"><h2>Evolução do alcance</h2><span className="muted">por dia de coleta</span></div>
-            {historico.length >= 2 ? (
-              <Bars ariaLabel="Evolução do alcance do post" mostrarValores={false} dados={historico.map((h, i, arr) => ({ rotulo: i % Math.ceil(arr.length / 10) === 0 ? dataCurta(h.coletado_em) : '', valor: h.alcance, destaque: i === arr.length - 1 }))} />
+            {evolucao.length >= 2 ? (
+              <Bars ariaLabel="Evolução do alcance do post" dados={evolucao} />
             ) : (
               <p className="muted">A evolução aparece a partir do segundo dia de coleta deste post. O histórico é gravado todos os dias às 6h.</p>
             )}

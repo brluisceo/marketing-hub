@@ -129,3 +129,43 @@ CREATE TABLE IF NOT EXISTS usuarios_log (
 CREATE INDEX IF NOT EXISTS usuarios_log_em_idx ON usuarios_log (em DESC);
 REVOKE ALL ON usuarios_log FROM hub_coleta;
 GRANT SELECT, INSERT ON usuarios_log TO hub_site;
+
+-- Calendário e aprovação: posts planejados. Qualquer pessoa logada cria e envia para aprovação;
+-- só owner/admin aprovam ou pedem ajustes (regras em lib/calendario.ts).
+-- Não há DELETE: excluir = etapa 'cancelado' (some da tela, o histórico fica).
+CREATE TABLE IF NOT EXISTS calendario_posts (
+  id             bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  titulo         text NOT NULL CHECK (length(titulo) BETWEEN 1 AND 200),
+  formato        text NOT NULL CHECK (formato IN ('reels', 'carrossel', 'imagem', 'story')),
+  data           date NOT NULL,                  -- dia previsto (America/Sao_Paulo)
+  hora           time,                           -- opcional
+  legenda        text CHECK (length(legenda) <= 2200),              -- limite do Instagram
+  arte_url       text CHECK (arte_url ~ '^https://' AND length(arte_url) <= 1000),
+  observacoes    text CHECK (length(observacoes) <= 2000),
+  etapa          text NOT NULL DEFAULT 'rascunho'
+                 CHECK (etapa IN ('rascunho', 'em_aprovacao', 'ajustes', 'aprovado', 'publicado', 'cancelado')),
+  criado_por     text NOT NULL,
+  criado_em      timestamptz NOT NULL DEFAULT now(),
+  atualizado_por text,
+  atualizado_em  timestamptz NOT NULL DEFAULT now(),
+  aprovado_por   text,
+  aprovado_em    timestamptz
+);
+CREATE INDEX IF NOT EXISTS calendario_posts_data_idx ON calendario_posts (data);
+CREATE INDEX IF NOT EXISTS calendario_posts_pendentes_idx ON calendario_posts (data) WHERE etapa IN ('em_aprovacao', 'ajustes');
+
+-- Tudo o que aconteceu com cada post (criou, enviou, aprovou, pediu ajustes...) e os comentários.
+CREATE TABLE IF NOT EXISTS calendario_historico (
+  id      bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  post_id bigint NOT NULL REFERENCES calendario_posts (id),
+  em      timestamptz NOT NULL DEFAULT now(),
+  autor   text NOT NULL,
+  acao    text NOT NULL CHECK (acao IN ('criou', 'editou', 'enviou', 'aprovou', 'ajustes', 'publicou', 'excluiu', 'comentou')),
+  texto   text CHECK (length(texto) <= 1000)
+);
+CREATE INDEX IF NOT EXISTS calendario_historico_post_idx ON calendario_historico (post_id, em);
+
+-- O calendário não é assunto da coleta; o site grava, mas não apaga.
+REVOKE ALL ON calendario_posts, calendario_historico FROM hub_coleta;
+GRANT SELECT, INSERT, UPDATE ON calendario_posts TO hub_site;
+GRANT SELECT, INSERT ON calendario_historico TO hub_site;
