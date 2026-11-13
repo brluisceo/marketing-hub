@@ -24,6 +24,10 @@ export type Post = {
   alcance: number; visualizacoes: number; curtidas: number; comentarios: number;
   compartilhamentos: number; salvamentos: number; interacoes: number; engajamento_pct: number;
   atualizado_em?: string;
+  // Só na lista de posts lida do banco (tabela posts_pilares). null = sem pilar.
+  // pilar_origem: 'sugestao' (classificação automática pela legenda) ou 'manual' (marcado no hub).
+  pilar?: string | null;
+  pilar_origem?: string | null;
 };
 
 export type PostsResp = { total: number; pagina: number; por_pagina: number; ordem: string; dir: string; itens: Post[] };
@@ -62,3 +66,28 @@ export type PaginaSite = { id: string; titulo: string; url: string; pasta_id: st
 export type PastaSite = { id: string; nome: string; cor: string | null };
 // gerado_em = última leitura do Kastir pelo n8n. exemplo = retrato de lib/mock-sites.ts (o n8n ainda não leu).
 export type SitesResp = { site: string; paginas: PaginaSite[]; pastas: PastaSite[]; gerado_em: string; exemplo?: boolean };
+
+// Análises (quando e o que postar). Valores = média ou mediana (escolha na tela); engajamento em %.
+// `maior` = maior alcance de um post do grupo. Entram só posts com 7 dias ou mais.
+// Faixas de horário: 0 = até 9h, 1 = 9h–12h ... 5 = 21h em diante.
+export type Grupo = { n: number; alcance: number; engajamento: number; maior: number };
+export type GrupoCompleto = Grupo & { salvamentos: number; compartilhamentos: number; comentarios: number };
+export type AnalisesResp = {
+  gerado_em: string; meses: number;
+  total: Grupo;
+  grade: (Grupo & { dia: number; faixa: number })[];        // dia: 1 = segunda ... 7 = domingo
+  horas: (Grupo & { hora: number })[];
+  dias: (Grupo & { dia: number })[];
+  formatos: (GrupoCompleto & { formato: string })[];
+  pilares: (GrupoCompleto & { pilar: string | null })[];
+  // Semanas completas do período, por quantidade de posts (todos os posts, sem os filtros de formato e pilar).
+  frequencia: { de: number; ate: number; semanas: number; alcance_post: number; alcance_semana: number }[];
+  sem_pilar: number;                                         // posts do período (de qualquer idade) ainda sem pilar
+  stories: {
+    total: number; dias: number; desde: string | null;
+    faixas: { faixa: number; n: number; visualizacoes: number; alcance: number }[];
+    // Posição do Story na sequência do dia (8 = do 8º em diante): quanto do alcance do 1º continua e % que saiu ali.
+    sequencia: { pos: number; dias: number; continuam_pct: number; saida_pct: number }[];
+  };
+  exemplo?: boolean;
+};

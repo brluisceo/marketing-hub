@@ -1,5 +1,6 @@
 // Conexão com o Postgres (usuário hub_site). Só no servidor.
-// Grava só em `acessos`, `usuarios`, `usuarios_log` e nas tabelas do calendário (lib/calendario.ts); o resto é leitura.
+// Grava só em `acessos`, `usuarios`, `usuarios_log`, nas tabelas do calendário (lib/calendario.ts) e em `posts_pilares`
+// (pilar de cada post, marcado na tela Posts); o resto é leitura.
 import { Pool } from 'pg';
 import { PAPEIS, papelValido, type Papel } from './session';
 

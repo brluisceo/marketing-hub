@@ -122,7 +122,7 @@ export async function overview(mesPedido?: string): Promise<Overview> {
 
 const ORDENS = ['publicado_em', 'alcance', 'visualizacoes', 'curtidas', 'comentarios', 'compartilhamentos', 'salvamentos', 'interacoes', 'engajamento_pct'];
 
-export async function posts(q: { mes?: string; formato?: string; ordem?: string; dir?: string; busca?: string; pagina?: string; por_pagina?: string }): Promise<PostsResp> {
+export async function posts(q: { mes?: string; formato?: string; pilar?: string; ordem?: string; dir?: string; busca?: string; pagina?: string; por_pagina?: string }): Promise<PostsResp> {
   const ordem = ORDENS.includes(q.ordem || '') ? q.ordem! : 'publicado_em';
   const dir = q.dir === 'asc' ? 'asc' : 'desc';
   const por_pagina = Math.min(Math.max(parseInt(q.por_pagina || '20', 10) || 20, 1), 100);
@@ -133,6 +133,9 @@ export async function posts(q: { mes?: string; formato?: string; ordem?: string;
   const params: unknown[] = [];
   if (q.mes) { params.push(q.mes); cond.push(`mes_ref = $${params.length}`); }
   if (q.formato) { params.push(q.formato); cond.push(`formato = $${params.length}`); }
+  // Pilar (tabela posts_pilares): 'sem' = ainda sem pilar. A página confere o código antes (lib/pilares.ts).
+  if (q.pilar === 'sem') cond.push('pp.pilar IS NULL');
+  else if (q.pilar) { params.push(q.pilar); cond.push(`pp.pilar = $${params.length}`); }
   if (busca) { params.push(busca); cond.push(`strpos(lower(coalesce(legenda, '')), $${params.length}) > 0`); }
   const where = cond.length ? `WHERE ${cond.join(' AND ')}` : '';
   // `ordem` vem de lista fechada, por isso pode entrar no SQL.
@@ -140,15 +143,15 @@ export async function posts(q: { mes?: string; formato?: string; ordem?: string;
   const chave = ordem === 'engajamento_pct' ? ENG : ordem === 'publicado_em' ? 'publicado_em' : `coalesce(${ordem}, 0)`;
   params.push(por_pagina, (pagina - 1) * por_pagina);
 
-  const r = await linhas<PostLinha & { engajamento_pct: string; total: number }>(
-    `SELECT ${COLS_POST}, (${ENG})::float8 AS engajamento_pct, count(*) OVER ()::int AS total
-       FROM posts ${where}
+  const r = await linhas<PostLinha & { engajamento_pct: string; total: number; pilar: string | null; pilar_origem: string | null }>(
+    `SELECT ${COLS_POST}, (${ENG})::float8 AS engajamento_pct, count(*) OVER ()::int AS total, pp.pilar, pp.origem AS pilar_origem
+       FROM posts LEFT JOIN posts_pilares pp USING (post_id) ${where}
       ORDER BY ${chave} ${dir}, publicado_em DESC, post_id
       LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
   // Página além do fim não traz linhas; conta à parte para manter o total.
-  const total = r.length ? r[0].total : (await linhas<{ n: number }>(`SELECT count(*)::int AS n FROM posts ${where}`, params.slice(0, -2)))[0].n;
+  const total = r.length ? r[0].total : (await linhas<{ n: number }>(`SELECT count(*)::int AS n FROM posts LEFT JOIN posts_pilares pp USING (post_id) ${where}`, params.slice(0, -2)))[0].n;
   const itens: Post[] = r.map(({ total: _t, ...p }) => ({ ...p, engajamento_pct: Number(p.engajamento_pct) }));
   return { total, pagina, por_pagina, ordem, dir, itens };
 }

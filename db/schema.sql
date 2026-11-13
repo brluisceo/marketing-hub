@@ -207,3 +207,16 @@ CREATE INDEX IF NOT EXISTS sites_historico_em_idx ON sites_historico (em DESC);
 
 GRANT SELECT, INSERT, UPDATE ON sites_paginas, sites_pastas, sites_historico TO hub_coleta;
 GRANT SELECT ON sites_paginas, sites_pastas, sites_historico TO hub_site;
+
+-- Pilar (tema) de cada post do Instagram, usado na tela Análises. Sem linha (ou pilar NULL) = sem pilar.
+-- origem: 'sugestao' (classificação automática lendo a legenda; a inicial foi em 13/11/2026) ou 'manual' (alguém marcou no hub).
+-- O site grava (painel do post na tela Posts); não há DELETE: tirar o pilar = pilar NULL.
+CREATE TABLE IF NOT EXISTS posts_pilares (
+  post_id     text PRIMARY KEY,
+  pilar       text CHECK (pilar IN ('gestao', 'vendas', 'tributario', 'mentalidade', 'bastidores', 'eventos', 'casos', 'opiniao')),
+  origem      text NOT NULL DEFAULT 'manual' CHECK (origem IN ('sugestao', 'manual')),
+  marcado_por text,
+  marcado_em  timestamptz NOT NULL DEFAULT now()
+);
+REVOKE ALL ON posts_pilares FROM hub_coleta;
+GRANT SELECT, INSERT, UPDATE ON posts_pilares TO hub_site;

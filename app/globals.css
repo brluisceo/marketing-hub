@@ -577,6 +577,78 @@ body:has(.janela) { overflow: hidden; }
 }
 @media (pointer: coarse) { .prop > input, .prop > select, .prop > textarea, .prop-datas input, .janela-comentar textarea, .janela-legenda { font-size: 16px; } }
 
+/* Análises (Instagram): quando e o que postar. Valor "típico" = mediana; grupos com poucos posts ficam em cinza. */
+.analises-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 10px 24px; border-bottom: 1px solid var(--line); }
+.analises-filtros .inline-field { gap: 8px; }
+.panel-sub { font-size: 12px; color: var(--text-3); margin-top: -8px; }
+.par-graficos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.bars-bar.is-pouca { background: var(--line); }
+
+/* Quadro dia × horário: azul mais escuro = valor maior (escala de uma cor só). Poucos posts = cinza com contorno. */
+.mapa-caixa { container-type: inline-size; overflow-x: auto; }
+.mapa { display: grid; grid-template-columns: 34px repeat(6, minmax(44px, 1fr)); gap: 3px; }
+.mapa-linha { display: contents; }
+.mapa-topo { font-size: 11px; color: var(--text-3); text-align: center; padding: 0 0 4px; white-space: nowrap; }
+.mapa-dia { font-size: 12px; color: var(--text-3); display: flex; align-items: center; }
+.mapa-cel { min-height: 46px; border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; justify-content: center; gap: 1px;
+  background: color-mix(in srgb, var(--accent) calc(var(--t) * 88%), #f1f5fb); color: var(--text); font-variant-numeric: tabular-nums; }
+.mapa-cel.is-escura { color: #fff; }
+.mapa-cel.is-escura .mapa-n { color: rgba(255, 255, 255, 0.82); }
+.mapa-cel.is-pouca { background: var(--bg-soft); box-shadow: inset 0 0 0 1px var(--line); color: var(--text-3); }
+.mapa-cel.is-vazia { background: transparent; box-shadow: inset 0 0 0 1px var(--line-soft); }
+.mapa-cel.is-melhor { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
+.mapa-v { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.mapa-n { font-size: 11px; color: var(--text-3); line-height: 1.2; }
+.mapa-legenda { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; font-size: 11px; color: var(--text-3); }
+.mapa-escala { display: inline-flex; align-items: center; gap: 6px; }
+.mapa-escala i { width: 96px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #f1f5fb, color-mix(in srgb, var(--accent) 88%, #f1f5fb)); }
+.mapa-amostra { width: 12px; height: 12px; border-radius: 3px; background: var(--bg-soft); box-shadow: inset 0 0 0 1px var(--line); display: inline-block; vertical-align: -2px; margin-right: 4px; }
+@container (max-width: 520px) { .mapa-n { display: none; } .mapa-cel { min-height: 38px; padding: 4px 2px; align-items: center; } .mapa-v { font-size: 11px; white-space: nowrap; } .mapa-topo { font-size: 10px; } }
+
+/* Tabelas de comparação (formato, pilar, frequência, Stories): número + barrinha; ponto azul = melhor da coluna. */
+.comparar td { vertical-align: middle; }
+/* Já ficam dentro de um quadro: sem o recuo de 24 px das tabelas de página inteira. */
+.comparar th, .comparar td { padding-left: 8px; padding-right: 8px; }
+.comparar th:first-child, .comparar td:first-child { padding-left: 0; }
+.comparar th:last-child, .comparar td:last-child { padding-right: 0; }
+.comparar td > span { white-space: nowrap; }
+.comparar td:first-child { min-width: 9em; }
+.comparar .celula-medidor { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.comparar .celula-medidor .meter { width: 56px; flex: none; }
+.comparar .is-melhor { font-weight: 600; color: var(--text); }
+.comparar .is-melhor::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: var(--accent); vertical-align: 1px; }
+.comparar tr.linha-sem td { color: var(--text-3); }
+@container (max-width: 460px) { .comparar .celula-medidor .meter { display: none; } }
+
+/* Partes que dependem de coleta nova no n8n: desenho apagado com o aviso por cima, até os dados chegarem. */
+.pill-exemplo { background: var(--bg-fill); color: var(--text-3); font-weight: 600; }
+.exemplo-corpo { position: relative; }
+.exemplo-corpo > .exemplo-desenho { opacity: 0.35; filter: grayscale(1); pointer-events: none; }
+.exemplo-aviso { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; }
+.exemplo-aviso span { max-width: 340px; padding: 8px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.92); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--line); color: var(--text-2); font-size: 12px; line-height: 1.45; }
+.hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.hbars li { display: grid; grid-template-columns: minmax(80px, 140px) 1fr 48px; align-items: center; gap: 10px; font-size: 12px; }
+.hbars .meter { height: 8px; }
+
+/* "O que os números dizem": ponto azul = conclusão; laranja = cautela (pouca amostra). */
+.resumo-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.resumo-lista li { color: var(--text-2); line-height: 1.5; padding-left: 14px; position: relative; }
+.resumo-lista li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.resumo-lista li.is-cautela::before { background: #ff9500; }
+.resumo-lista strong { color: var(--text); font-weight: 600; }
+/* Abaixo de 1280 px o resumo sai da lateral (as tabelas precisam da largura) e vem antes dos gráficos, em colunas. */
+@media (max-width: 1279px) {
+  .split.split-analises { flex-wrap: wrap; }
+  .split-analises > .aside { order: -1; flex: 1 1 100%; flex-flow: row wrap; gap: 22px 32px; border-left: 0; border-top: 0; border-bottom: 1px solid var(--line); }
+  .split-analises > .aside > .aside-block { flex: 1 1 260px; min-width: 0; }
+}
+
+/* Pilar na tela Posts: coluna da lista e campo no painel do post */
+.col-pilar { white-space: nowrap; }
+.pilar-form { display: flex; gap: 8px; align-items: center; }
+.pilar-form select { flex: 1 1 auto; min-width: 0; font: inherit; min-height: 32px; padding: 0 8px; border: 1px solid #d2d2d7; border-radius: 7px; background: #fff; color: var(--text); }
+@media (pointer: coarse) { .pilar-form select { font-size: 16px; min-height: 40px; } }
+
 /* ===== Telas menores =====
    ≥ 1000 px (computador, notebook, iPad deitado): menu lateral fixo.
    < 1000 px (tablet em pé, celular): barra no topo com botão "Menu" que abre o menu como gaveta.
