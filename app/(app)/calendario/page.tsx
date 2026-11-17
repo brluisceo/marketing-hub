@@ -3,7 +3,7 @@ import Aviso from '@/components/Aviso';
 import ErroApi from '@/components/ErroApi';
 import { usuarioAtual } from '@/lib/acesso';
 import {
-  acoesPermitidas, aprova, diasDaGrade, ehDia, ehId, ehMes, enderecoCalendario, historicoDoPost, lerPost, listarPendentes, listarPosts, nomesDasPessoas,
+  acoesPermitidas, diasDaGrade, ehDia, ehId, ehMes, enderecoCalendario, historicoDoPost, lerPost, listarPendentes, listarPosts, nomesDasPessoas,
   type Acao, type Endereco, type Etapa, type LinhaHistoricoPost, type PostPlanejado, type Visao
 } from '@/lib/calendario';
 import { diaAtual, mesAtual, mesVizinho, nomeMes } from '@/lib/format';
@@ -22,7 +22,7 @@ const MENSAGENS: Record<string, [string, 'ok' | 'erro']> = {
   publicado: ['Marcado como publicado.', 'ok'],
   excluido: ['Post excluído do calendário.', 'ok'],
   comentado: ['Comentário enviado.', 'ok'],
-  sem_permissao: ['Você não tem permissão para isso. Aprovar e pedir ajustes é com Owner e Admin.', 'erro'],
+  sem_permissao: ['Você não tem permissão para isso. Editar ou excluir post de outra pessoa é com Owner e Admin.', 'erro'],
   nao_encontrado: ['Post não encontrado. Ele pode ter sido excluído.', 'erro'],
   mudou: ['Alguém mexeu neste post agora há pouco. Confira a etapa atual e tente de novo.', 'erro'],
   falta_texto: ['Escreva no comentário o que precisa mudar para pedir ajustes.', 'erro'],
@@ -66,7 +66,6 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
   const nome = (email: string) => nomes.get(email) || email.split('@')[0];
 
   const quem = eu ? { email: eu.email.toLowerCase(), papel: eu.papel } : null;
-  const aprovador = !!quem && aprova(quem.papel);
   const acoes: Set<Acao> = aberto && quem ? acoesPermitidas(aberto, quem) : new Set();
   // Novo post: dia escolhido na grade; sem dia, hoje (se o mês for o atual) ou o dia 1 do mês que está na tela.
   const diaNovo = ehDia(sp.novo) ? sp.novo : mes === hoje.slice(0, 7) ? hoje : `${mes}-01`;
@@ -120,12 +119,12 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
           // No celular este painel abre por cima do calendário (ver .aside-sel em globals.css).
           <aside className="aside aside-sel aside-cal is-aberto" aria-label="Post do calendário">
             <div className="aside-fechar"><Link href={fechar} scroll={false} className="btn">Fechar</Link></div>
-            <PainelPost p={aberto} acoes={acoes} aprovador={aprovador} historico={historico} nome={nome} mes={mes} ver={ver} link={link} />
+            <PainelPost p={aberto} acoes={acoes} historico={historico} nome={nome} mes={mes} ver={ver} link={link} />
           </aside>
         ) : ver === 'calendario' ? (
           // No Quadro a fila de aprovação já é a coluna "Em aprovação": as colunas ficam com a largura toda.
           <aside className="aside" aria-label="Resumo do calendário">
-            <Resumo pendentes={pendentes} aprovador={aprovador} link={link} />
+            <Resumo pendentes={pendentes} link={link} />
           </aside>
         ) : null}
       </div>

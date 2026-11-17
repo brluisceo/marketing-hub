@@ -58,26 +58,26 @@ export type LinhaHistoricoPost = { id: string; em: string; autor: string; acao: 
 
 export type Acao = 'editar' | 'enviar' | 'aprovar' | 'ajustes' | 'publicar' | 'excluir' | 'comentar';
 
-export const aprova = (papel: Papel) => pode(papel, 'admin');
-
-// Qualquer pessoa logada cria e envia o próprio post; só owner/admin aprovam, pedem ajustes
-// e mexem em post já aprovado. Publicado e excluído só recebem comentário (excluído, nem isso).
+// Qualquer pessoa logada cria e envia o próprio post, aprova ou pede ajustes (inclusive no
+// próprio post: a aprovação é um controle interno do time) e marca como publicado.
+// Editar, pedir ajustes e excluir, mesmo em post aprovado, só quem criou ou owner/admin.
+// Decisões do usuário em 17/11/2026. Publicado e excluído só recebem comentário (excluído, nem isso).
 export function acoesPermitidas(p: PostPlanejado, quem: { email: string; papel: Papel }): Set<Acao> {
-  const aprovador = aprova(quem.papel);
-  const autorOuAprovador = aprovador || p.criado_por === quem.email.toLowerCase();
+  const gestor = pode(quem.papel, 'admin');
+  const autorOuGestor = gestor || p.criado_por === quem.email.toLowerCase();
   const a = new Set<Acao>();
   switch (p.etapa) {
     case 'rascunho':
     case 'ajustes':
-      if (autorOuAprovador) a.add('editar').add('enviar').add('excluir');
+      if (autorOuGestor) a.add('editar').add('enviar').add('excluir');
       break;
     case 'em_aprovacao':
-      if (autorOuAprovador) a.add('editar').add('excluir');
-      if (aprovador) a.add('aprovar').add('ajustes');
+      if (autorOuGestor) a.add('editar').add('excluir');
+      a.add('aprovar').add('ajustes');
       break;
     case 'aprovado':
-      if (autorOuAprovador) a.add('publicar');
-      if (aprovador) a.add('editar').add('ajustes').add('excluir');
+      a.add('publicar');
+      if (autorOuGestor) a.add('editar').add('ajustes').add('excluir');
       break;
   }
   if (p.etapa !== 'cancelado') a.add('comentar');

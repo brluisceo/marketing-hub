@@ -13,7 +13,7 @@ const SEMANA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 
 const EXPLICA: Record<string, string> = {
   rascunho: 'ainda sendo preparado.',
-  em_aprovacao: 'esperando Owner ou Admin.',
+  em_aprovacao: 'esperando alguém do time aprovar.',
   ajustes: 'voltou com comentários para corrigir.',
   aprovado: 'pronto para publicar no dia marcado.',
   publicado: 'já saiu no Instagram.'
@@ -110,8 +110,8 @@ function Ocultos({ id, mes, ver }: { id?: string; mes: string; ver: Visao }) {
   );
 }
 
-export function PainelPost({ p, acoes, aprovador, historico, nome, mes, ver, link }: {
-  p: PostPlanejado; acoes: Set<Acao>; aprovador: boolean; historico: LinhaHistoricoPost[]; nome: Nome; mes: string; ver: Visao; link: MontaLink;
+export function PainelPost({ p, acoes, historico, nome, mes, ver, link }: {
+  p: PostPlanejado; acoes: Set<Acao>; historico: LinhaHistoricoPost[]; nome: Nome; mes: string; ver: Visao; link: MontaLink;
 }) {
   const ocultos = <Ocultos id={p.id} mes={mes} ver={ver} />;
   const decide = acoes.has('aprovar') || acoes.has('ajustes');
@@ -152,8 +152,6 @@ export function PainelPost({ p, acoes, aprovador, historico, nome, mes, ver, lin
             <button type="submit" formAction={pedirAjustes} className="btn">Pedir ajustes</button>
           </div>
         </form>
-      ) : p.etapa === 'em_aprovacao' && !aprovador ? (
-        <p className="muted small">Aguardando Owner ou Admin aprovar.</p>
       ) : null}
 
       <div className="aside-actions">
@@ -308,7 +306,7 @@ export function JanelaPost({ p, dia, mes, ver, fechar, eu, historico, nome }: {
 }
 
 // Painel quando nenhum post está aberto: a fila de aprovação (de todos os meses) e as etapas.
-export function Resumo({ pendentes, aprovador, link }: { pendentes: PostPlanejado[]; aprovador: boolean; link: MontaLink }) {
+export function Resumo({ pendentes, link }: { pendentes: PostPlanejado[]; link: MontaLink }) {
   const emAprovacao = pendentes.filter((p) => p.etapa === 'em_aprovacao');
   const ajustes = pendentes.filter((p) => p.etapa === 'ajustes');
   const lista = (itens: PostPlanejado[]) => (
@@ -329,7 +327,7 @@ export function Resumo({ pendentes, aprovador, link }: { pendentes: PostPlanejad
       <div className="aside-block">
         <h2>Aguardando aprovação</h2>
         {emAprovacao.length ? lista(emAprovacao) : <p className="muted">Nenhum post esperando aprovação.</p>}
-        <p className="muted small">{aprovador ? 'Abra o post para aprovar ou pedir ajustes.' : 'Quem aprova: Owner e Admin.'}</p>
+        <p className="muted small">Abra o post para aprovar ou pedir ajustes.</p>
       </div>
       {ajustes.length ? <div className="aside-block"><h2>Com ajustes pedidos</h2>{lista(ajustes)}</div> : null}
       <div className="aside-block">
