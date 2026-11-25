@@ -1,0 +1,12 @@
+{
+  "name": "trafego-pago",
+  "private": true,
+  "scripts": {
+    "checar": "tsc --noEmit",
+    "testar": "python3 n8n/gerar.py && vitest run test.ts && node --test test/calculo.test.js test/nos.test.js"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "vitest": "3.1.4"
+  }
+}
