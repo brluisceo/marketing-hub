@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tráfego pago · Contador CEO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Libre+Baskerville:ital@1&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fundo: #FFFFFF; --azul: #1F5FD1; --azul-claro: #60A5FA; --marinho: #021528;
+  --texto: #0B1B2E; --texto-2: #3A4A5E; --texto-3: #55657A;
+  --verde: #067647; --verde-bg: #ECFDF3; --vermelho: #B42318; --vermelho-bg: #FFF1F0;
+  --ambar: #8A5A0B; --ambar-bg: #FFF4DE; --linha: rgba(2,21,40,0.08);
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--fundo); color: var(--texto); font-family: Manrope, Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+a { color: var(--azul); } a:hover { color: #0B3A8C; }
+.manchas { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.manchas span { position: absolute; border-radius: 50%; filter: blur(110px); }
+.manchas span:nth-child(1) { top: -160px; left: -140px; width: 620px; height: 620px; background: var(--azul); opacity: .18; }
+.manchas span:nth-child(2) { top: 40%; right: -180px; width: 560px; height: 560px; background: var(--azul-claro); opacity: .24; }
+.manchas span:nth-child(3) { bottom: -200px; left: 25%; width: 640px; height: 520px; background: #A5B4FC; opacity: .28; }
+main { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 24px 20px 56px; display: flex; flex-direction: column; gap: 24px; }
+nav.topo { display: flex; gap: 6px; flex-wrap: wrap; }
+.glass { background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.62)); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255,255,255,.8); box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 0 0 1px rgba(2,21,40,.06), 0 18px 40px -24px rgba(2,21,40,.35); border-radius: 24px; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass { background: #FFFFFF; } }
+.cartao { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.destaque { box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 0 0 2px var(--azul), 0 24px 48px -26px var(--azul); }
+.linha { display: flex; flex-wrap: wrap; gap: 16px; }
+.linha > * { flex: 1 1 220px; min-width: 0; }
+header.cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+h1 { margin: 0; font-size: clamp(30px, 5vw, 40px); font-weight: 800; letter-spacing: -0.03em; color: var(--marinho); }
+h1 em { font-family: 'Libre Baskerville', Georgia, serif; font-weight: 400; letter-spacing: 0; color: var(--azul); }
+h2 { margin: 0; font-size: 22px; font-weight: 800; color: var(--marinho); }
+h3 { margin: 0; font-size: 17px; font-weight: 800; color: var(--marinho); }
+p { margin: 0; }
+.sobre { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--texto-3); }
+.k { font-size: 13px; font-weight: 600; color: var(--texto-3); display: flex; justify-content: space-between; gap: 8px; }
+.v { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--marinho); line-height: 1.1; }
+.v.grande { font-size: 56px; letter-spacing: -0.03em; }
+.nota { font-size: 12px; color: var(--texto-3); line-height: 1.5; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; align-self: flex-start; }
+.bom { background: var(--verde-bg); color: var(--verde); } .ruim { background: var(--vermelho-bg); color: var(--vermelho); } .neutro { background: rgba(2,21,40,.06); color: var(--texto-2); }
+.aviso { background: var(--ambar-bg); color: var(--ambar); }
+.tag30 { padding: 2px 8px; border-radius: 999px; background: #EAF1FD; color: #1A4FB0; font-size: 11px; font-weight: 800; }
+.pilulas { display: flex; gap: 4px; padding: 5px; border-radius: 999px; }
+.pilulas button, .pilulas a { height: 44px; padding: 0 18px; border-radius: 999px; border: none; background: transparent; color: var(--texto-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; text-decoration: none; }
+.pilulas [aria-pressed="true"], .pilulas [aria-current="page"] { background: var(--azul); color: #FFFFFF; font-weight: 700; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.tabela { overflow-x: auto; padding: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; padding: 14px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--texto-3); border-bottom: 1px solid var(--linha); font-weight: 700; }
+td { padding: 14px 16px; border-bottom: 1px solid rgba(2,21,40,.05); }
+tr:last-child td { border-bottom: none; }
+.num { text-align: right; }
+.mono { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; }
+.barra { display: block; height: 8px; border-radius: 99px; background: rgba(2,21,40,.07); }
+.barra > span { display: block; height: 100%; border-radius: 99px; background: var(--azul); }
+.vazio { padding: 28px; text-align: center; color: var(--texto-3); font-size: 14px; }
+.erro { padding: 16px 20px; border-radius: 16px; background: var(--vermelho-bg); color: var(--vermelho); font-weight: 600; }
+.medalha { flex: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-weight: 800; }
+input[type=search], input[type=text], input[type=date], select { height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(2,21,40,.14); background: rgba(255,255,255,.85); font: inherit; font-size: 14px; color: var(--texto); }
+.carregando { opacity: .55; }
+#conteudo, #eventos { display: flex; flex-direction: column; gap: 24px; }
+
+.aba:not([hidden]) { display: flex; flex-direction: column; gap: 24px; }
+#eventos { display: flex; flex-direction: column; gap: 24px; }
+[aria-current="true"] { background: var(--azul) !important; color: #FFFFFF !important; font-weight: 700 !important; }
+</style>
+</head>
+<body>
+<div class="manchas" aria-hidden="true"><span></span><span></span><span></span></div>
+<main>
+  <nav class="topo glass pilulas" aria-label="Telas" style="align-self: flex-start">
+    <button type="button" data-aba="relatorio" aria-current="true">Relatório</button>
+    <button type="button" data-aba="eventos" aria-current="false">Eventos e campanhas</button>
+  </nav>
+  <div id="aba-relatorio" class="aba">
+    <header class="cab">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p class="sobre">Marketing · Tráfego pago · Contador CEO</p>
+        <h1>Relatório <em>do dia</em></h1>
+        <p id="subtitulo" style="font-size: 15px; color: var(--texto-3)">Carregando…</p>
+      </div>
+      <div class="glass pilulas" role="group" aria-label="Período">
+        <button type="button" data-periodo="ontem" aria-pressed="true">Ontem</button>
+        <button type="button" data-periodo="7d" aria-pressed="false">7 dias</button>
+        <button type="button" data-periodo="30d" aria-pressed="false">30 dias</button>
+      </div>
+    </header>
+    <div id="conteudo" aria-live="polite"></div>
+  </div>
+  <div id="aba-eventos" class="aba" hidden>
+    <header class="cab">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p class="sobre">Marketing · Tráfego pago · Contador CEO</p>
+        <h1>Eventos e <em>campanhas</em></h1>
+        <p style="font-size: 15px; color: var(--texto-3)">Cada código de campanha e o evento ou iniciativa a que ele pertence</p>
+      </div>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--texto-2)">Buscar código, evento ou campanha
+        <input id="busca" type="search" placeholder="Ex.: 08CEO2026, Brasília" style="width: 300px; max-width: 100%"></label>
+    </header>
+    <div id="eventos" aria-live="polite"><p class="vazio">Carregando…</p></div>
+  </div>
+</main>
+<script>
+// Preenchidos pelo n8n ao servir a página (nó "Sessão página")
+var SESSAO = '__SESSAO_PAINEL__';
+var API_URL = '__API_URL__';
+// Formatação única para todas as telas. null vira "—" (dado ainda não existe).
+const brl = (v, casas = 2) => v == null ? "R$ —" :
+  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: casas, maximumFractionDigits: casas });
+const int = (v) => v == null ? "—" : Math.round(v).toLocaleString("pt-BR");
+const pct = (v, casas = 1) => v == null ? "—%" : (v * 100).toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas }) + "%";
+const dataBR = (iso) => iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "—";
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const SETA_CIMA = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const SETA_BAIXO = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
+
+/** Selo de variação. menorEhMelhor: custos (CPL, custo por reunião). Sempre com texto, não só cor. */
+function selo(v, { menorEhMelhor = false, neutro = false, sufixo = "vs. anterior" } = {}) {
+  if (v == null) return '<span class="chip neutro">sem comparação</span>';
+  const sobe = v > 0;
+  const seta = sobe ? SETA_CIMA : SETA_BAIXO;
+  const txt = `${Math.abs(v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% ${sobe ? "acima" : "abaixo"} ${sufixo}`;
+  if (neutro || v === 0) return `<span class="chip neutro">${seta}${txt}</span>`;
+  const bom = menorEhMelhor ? !sobe : sobe;
+  return `<span class="chip ${bom ? "bom" : "ruim"}">${seta}${txt} · ${bom ? "melhor" : "pior"}</span>`;
+}
+
+async function api(corpo) {
+  const r = await fetch(API_URL, { method: "POST", headers: { "content-type": "text/plain" }, body: JSON.stringify(Object.assign({ s: SESSAO }, corpo)) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.ok === false) throw new Error(j.erro === "sessao" ? "sessão expirada, entre de novo" : (j.erro || "erro " + r.status));
+  return j;
+}
+
+
+const el = document.getElementById("conteudo");
+const sub = document.getElementById("subtitulo");
+const botoes = [...document.querySelectorAll("[data-periodo]")];
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+function velocimetro(p) {
+  // Faixas: vermelho < 40%, amarelo 40–65%, verde ≥ 65% (referência do time).
+  const cx = 130, cy = 130, r = 100, sw = 26;
+  const pt = (v, rad = r) => { const a = Math.PI * (1 - v / 100); return [cx + rad * Math.cos(a), cy - rad * Math.sin(a)]; };
+  const arco = (a, b, cor) => { const [x1, y1] = pt(a), [x2, y2] = pt(b); return `<path d="M${x1},${y1} A${r},${r} 0 0 1 ${x2},${y2}" fill="none" stroke="${cor}" stroke-width="${sw}"/>`; };
+  const marcas = [0, 20, 40, 60, 80, 100].map((t) => { const [x, y] = pt(t, r + sw / 2 + 16); return `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="12" font-weight="600" fill="#55657A">${t}</text>`; }).join("");
+  let ponteiro = "";
+  if (p != null) {
+    const v = Math.max(0, Math.min(100, p * 100)), a = Math.PI * (1 - v / 100);
+    const [nx, ny] = pt(v, r - 8);
+    ponteiro = `<polygon points="${cx + 9 * Math.sin(a)},${cy + 9 * Math.cos(a)} ${nx},${ny} ${cx - 9 * Math.sin(a)},${cy - 9 * Math.cos(a)}" fill="#021528"/>`;
+  }
+  return `<svg width="260" height="160" viewBox="0 -14 260 160" role="img" aria-label="Meta de leads: ${p == null ? "sem dado" : pct(p, 0)}" style="max-width: 100%; overflow: visible">
+    ${arco(0, 40, "#D92D20")}${arco(40, 65, "#F5B021")}${arco(65, 100, "#3BA34A")}${marcas}${ponteiro}
+    <circle cx="${cx}" cy="${cy}" r="11" fill="#021528"/><circle cx="${cx}" cy="${cy}" r="4" fill="#FFFFFF"/></svg>`;
+}
+
+function anel(p, cor = "var(--azul)") {
+  const r = 37.5, c = 2 * Math.PI * r, d = p == null ? 0 : c * Math.min(1, p);
+  return `<div style="position: relative; display: flex; align-items: center; justify-content: center; flex: none">
+    <svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(2,21,40,.08)" stroke-width="9"/>
+    ${p == null ? "" : `<circle cx="42" cy="42" r="${r}" fill="none" stroke="${cor}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${d} ${c}" transform="rotate(-90 42 42)"/>`}</svg>
+    <span style="position: absolute; font-size: 16px; font-weight: 800">${pct(p, 0)}</span></div>`;
+}
+
+function barras(serie, campo, cor, fmt, rotulo) {
+  if (!serie.length) return '<p class="vazio">Sem dados no banco ainda.</p>';
+  const W = 640, H = 170, n = serie.length, bw = (W - 20) / n;
+  const mx = Math.max(...serie.map((s) => s[campo] ?? 0)) || 1;
+  const partes = serie.map((s, i) => {
+    const v = s[campo]; const x = 10 + i * bw + bw * .18, w = bw * .64;
+    const h = v == null ? 0 : (H - 20) * v / mx, y = H - h;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${cor}"/>
+      ${v == null ? "" : `<text x="${x + w / 2}" y="${y - 6}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#021528">${fmt(v)}</text>`}
+      <text x="${x + w / 2}" y="${H + 18}" text-anchor="middle" font-size="11" fill="#55657A">${rotulo(s)}</text>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${H + 30}" width="100%" role="img" aria-label="Gráfico de barras" style="display: block; overflow: visible">${partes}</svg>`;
+}
+
+const k = (v) => v >= 1000 ? `${Math.round(v / 1000)}k` : `${Math.round(v)}`;
+
+function render(d) {
+  const m = d.meta, c = d.comercial, ind = d.indicadores, va = d.variacoes, l = d.leitura;
+  const p = d.periodo;
+  sub.textContent = p.de === p.ate ? `Dados de ${dataBR(p.ate)}` : `De ${dataBR(p.de)} a ${dataBR(p.ate)}`;
+
+  const metaReuniao = d.metas.custo_reuniao;
+  const escala = metaReuniao ? metaReuniao * 1.5 : null;
+  const barraMeta = escala && ind.custo_por_reuniao != null ? `
+    <div style="position: relative; height: 14px; border-radius: 99px; background: linear-gradient(90deg, #D1FADF 66.7%, #FEE4E2 66.7%)">
+      <span style="position: absolute; left: 0; height: 14px; width: ${Math.min(100, ind.custo_por_reuniao / escala * 100)}%; border-radius: 99px; background: ${ind.custo_por_reuniao <= metaReuniao ? "#12B76A" : "#D92D20"}"></span>
+      <span style="position: absolute; left: 66.7%; top: -6px; width: 3px; height: 26px; border-radius: 2px; background: #021528"></span>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--texto-3)"><span>R$ 0</span><b style="color: var(--marinho)">meta ${brl(metaReuniao, 0)}</b><span>${brl(escala, 0)}</span></div>` : "";
+
+  const leitura = l ? `
+    <section class="glass cartao" style="padding: 24px 28px" aria-labelledby="t-resumo">
+      <h2 id="t-resumo" style="font-size: 18px">Resumo do dia</h2>
+      <p style="font-size: 16px; line-height: 1.65; color: var(--texto-2)">${l.resumo.map(esc).join("<br>")}</p>
+      ${l.origem === "modelo" ? '<p class="nota">Leitura automática, feita só com os números abaixo.</p>' : '<p class="nota">Texto do Claude, conferido número a número com os dados abaixo.</p>'}
+    </section>` : "";
+
+  const leituraFim = l && (l.destaques || []).length ? `
+    <section class="linha" aria-label="Leitura do dia">
+      <div class="glass cartao" style="flex: 2 1 380px"><h3>Destaques</h3>
+        ${(l.destaques ?? []).map((t, i) => `<p style="display: flex; gap: 12px; font-size: 15px; line-height: 1.5; color: var(--texto-2)"><span class="medalha" style="width: 28px; height: 28px; border-radius: 9px; background: var(--verde-bg); color: var(--verde); font-size: 13px">${i + 1}</span>${esc(t)}</p>`).join("") || '<p class="nota">Sem destaques.</p>'}
+      </div>
+      <div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 16px">
+        <div class="glass cartao" style="background: linear-gradient(180deg, rgba(255,241,240,.92), rgba(255,241,240,.7))"><h3 style="color: var(--vermelho)">Alerta</h3><p style="font-size: 14px; line-height: 1.5; color: #7A1F17">${esc(l.alerta)}</p></div>
+        <div class="glass cartao destaque"><h3>Próxima ação</h3><p style="font-size: 14px; color: var(--texto-2)">${esc(l.proxima_acao?.acao)}</p>
+          <p style="display: flex; gap: 8px; flex-wrap: wrap"><span class="chip neutro">${esc(l.proxima_acao?.responsavel)}</span><span class="chip neutro">até ${esc(l.proxima_acao?.data)}</span></p></div>
+      </div>
+    </section>` : "";
+
+  const times = [["black_belt", "Black Belt", "Funil Closer", "var(--azul)"], ["outliers", "Outliers", "Funil Elite", "var(--azul-claro)"]];
+  const timesHtml = Object.keys(c.por_time).length ? times.map(([id, nome, funil, cor]) => {
+    const t = c.por_time[id];
+    return `<div class="glass cartao"><p class="k"><span style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 4px; background: ${cor}"></span><b style="color: var(--marinho)">${nome}</b> · ${funil}</span></p>
+      <p style="display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; font-size: 14px">
+        <span>Leads recebidos</span><b>${int(t.leads)}</b><span>MQL</span><b>${int(t.mql)}</b>
+        <span>Reuniões</span><b>${int(t.reunioes)}</b><span>Lead → reunião</span><b>${pct(t.lead_reuniao)}</b><span>Contratos</span><b>${int(t.contratos)}</b></p></div>`;
+  }).join("") : '<div class="glass vazio">Comparação Black Belt × Outliers entra com o PipeRun (Fase 2).</div>';
+
+  const medalhas = [["#F8E3A3", "#7A5A00"], ["#E4E8EE", "#3A4A5E"], ["#F3D2B5", "#7A3E0B"]];
+  const ranking = d.ranking.length ? d.ranking.map((r, i) => `
+    <div style="display: flex; align-items: center; gap: 14px; padding: 10px 0">
+      <span class="medalha" style="background: ${medalhas[i][0]}; color: ${medalhas[i][1]}">${i + 1}</span>
+      <div style="flex: 1; min-width: 0"><p class="mono" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${esc(r.nome)}</p><p class="nota">${int(r.leads)} leads · ${brl(r.investimento, 0)} investidos</p></div>
+      <b style="font-size: 17px">${brl(r.cpl)}</b></div>`).join("") : '<p class="vazio">Nenhuma campanha de lead com 5 leads ou mais no período.</p>';
+
+  const mxInv = Math.max(1, ...d.campanhas.map((x) => x.investimento));
+  const OBJ = { lead: "Leads", venda: "Vendas", whatsapp: "WhatsApp", perfil: "Perfil", outro: "Outro" };
+  const linhas = d.campanhas.map((x) => `<tr>
+    <td class="mono" style="white-space: nowrap">${esc(x.nome)}</td>
+    <td><span class="chip neutro">${OBJ[x.objetivo]}</span>${x.alerta_frequencia ? ' <span class="chip ruim">Frequência alta</span>' : ""}</td>
+    <td style="min-width: 150px"><b>${brl(x.investimento, 0)}</b><span class="barra" style="margin-top: 6px"><span style="width: ${x.investimento / mxInv * 100}%"></span></span></td>
+    <td class="num">${x.objetivo === "lead" ? int(x.leads) : "—"}</td><td class="num">${brl(x.cpl)}</td>
+    <td class="num">${pct(x.ctr, 2)}</td><td class="num">${brl(x.cpm)}</td>
+    <td class="num" style="${x.alerta_frequencia ? "color: var(--vermelho); font-weight: 800" : ""}">${x.frequencia == null ? "—" : x.frequencia.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}</td><td class="num">${int(x.crm_mql)}</td><td class="num">${int(x.reunioes)}</td><td class="num">${int(x.vendas)}</td><td class="num">${brl(x.custo_mql)}</td></tr>`).join("");
+
+  const funil = [["Leads no Meta", m.leads_meta], ["Leads no CRM", c.leads_crm], ["MQL", c.mql], ["Reuniões", c.reunioes]];
+  const topo = Math.max(1, m.leads_meta);
+  const funilHtml = funil.map(([n, v], i) => `<div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+    <p style="width: 140px; font-size: 14px; font-weight: 600; color: var(--texto-2)">${n}</p>
+    <span style="display: flex; align-items: center; height: 40px; width: ${v == null ? 0 : Math.max(10, v / topo * 100)}%; min-width: 64px; max-width: 70%; padding: 0 14px; border-radius: 12px; background: var(--azul); opacity: ${1 - i * .18}; color: #FFF; font-weight: 800">${int(v)}</span></div>`).join("");
+
+  el.innerHTML = `
+  ${leitura}
+  <section aria-labelledby="t-res" style="display: flex; flex-direction: column; gap: 14px">
+    <h2 id="t-res">Resultado</h2>
+    <div class="linha">
+      <div class="glass cartao destaque" style="flex: 2 1 420px; padding: 26px; gap: 16px">
+        <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+          <div><p class="k">Custo por reunião · termômetro do dia</p><p class="v grande">${brl(ind.custo_por_reuniao)}</p></div>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end">${selo(va.custo_por_reuniao, { menorEhMelhor: true })}</div>
+        </div>${barraMeta}
+        <p class="nota">${int(c.reunioes)} reuniões realizadas de leads do pago</p>
+      </div>
+      <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 16px">
+        <div class="glass cartao"><p class="k">Investimento</p><p class="v">${brl(m.investimento, 0)}</p>${selo(va.investimento, { neutro: true })}</div>
+        <div class="glass cartao"><p class="k">CAC por escritório <span class="tag30">30 DIAS</span></p><p class="v">${brl(ind.cac_30d, 0)}</p><p class="nota">1 venda por escritório</p></div>
+      </div>
+      <div class="glass cartao" style="flex: 1 1 260px"><p class="k">Retorno do pago <span class="tag30">30 DIAS</span></p>
+        <p class="v grande">${ind.retorno_30d == null ? "—" : ind.retorno_30d.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}×</p>
+        <p style="font-size: 14px; color: var(--texto-2)">Valor dos contratos ÷ investimento</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-mql" style="display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px"><h2 id="t-mql">Lead e MQL</h2>
+      <p style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px"><span class="glass chip neutro" style="padding: 8px 14px"><b>Lead</b>&nbsp;só nome, telefone e e-mail</span><span class="glass chip neutro" style="padding: 8px 14px"><b style="color: var(--azul)">MQL</b>&nbsp;dono ou sócio + faturamento no critério</span></p></div>
+    <div class="linha">
+      <div class="glass cartao"><p class="k">CPL (custo por lead)</p><p class="v">${brl(m.cpl)}</p>${selo(va.cpl, { menorEhMelhor: true })}<p class="nota">${int(m.leads_meta)} leads no Meta · só campanhas de lead</p></div>
+      <div class="glass cartao" style="flex-direction: row; align-items: center; gap: 16px">${anel(c.mql_pct)}<div><p class="k">% MQL</p><p class="nota">dos leads que responderam o formulário</p></div></div>
+      <div class="glass cartao"><p class="k">Custo por MQL</p><p class="v">${brl(ind.custo_por_mql)}</p>${selo(va.custo_por_mql, { menorEhMelhor: true })}</div>
+      <div class="glass cartao" style="flex-direction: row; align-items: center; gap: 16px">${anel(ind.mql_reuniao, "var(--azul-claro)")}<div><p class="k">MQL → reunião</p><p class="nota">baixo aqui = olhar o comercial</p></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-termo" style="display: flex; flex-direction: column; gap: 14px">
+    <h2 id="t-termo">Termômetro de leads</h2>
+    <div class="linha">
+      <div class="glass cartao" style="flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px">
+        ${velocimetro(d.velocimetro.pct)}
+        <div style="display: flex; flex-direction: column; gap: 8px"><p class="k">Meta de leads no pago</p>
+          <p class="v grande">${int(d.velocimetro.leads)}<span style="font-size: 22px; color: var(--texto-3)"> / ${int(d.velocimetro.meta)}</span></p>
+          <p style="font-weight: 700; color: var(--texto-2)">${pct(d.velocimetro.pct, 0)} da meta</p>
+          <p class="nota">Vermelho abaixo de 40% · amarelo 40 a 65% · verde acima de 65%</p></div>
+      </div>
+      <div class="glass cartao" style="flex: 2 1 420px"><p class="k">Do anúncio à reunião <span>Meta → PipeRun</span></p>${funilHtml}</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-hist" style="display: flex; flex-direction: column; gap: 14px">
+    <h2 id="t-hist">Histórico mensal</h2>
+    <div class="linha">
+      <div class="glass cartao" style="flex: 1 1 480px"><h3>Investimento por mês</h3>${barras(d.historico_mensal, "investimento", "var(--azul)", k, (s) => `${MESES[+s.mes.slice(5) - 1]}/${s.mes.slice(2, 4)}`)}</div>
+      <div class="glass cartao" style="flex: 1 1 480px"><h3>CPL por mês (só campanhas de lead)</h3>${barras(d.historico_mensal.map((s) => ({ ...s, cpl: s.leads ? s.investimento_lead / s.leads : null })), "cpl", "#E07B2A", (v) => Math.round(v).toLocaleString("pt-BR"), (s) => `${MESES[+s.mes.slice(5) - 1]}/${s.mes.slice(2, 4)}`)}</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-times" style="display: flex; flex-direction: column; gap: 14px">
+    <h2 id="t-times">Times comerciais</h2><p class="nota">Mesmo produto, mesmas campanhas: comparação por taxa, não por custo.</p>
+    <div class="linha">${timesHtml}</div>
+  </section>
+
+  <section class="glass cartao" aria-labelledby="t-rank"><h3 id="t-rank">Ranking · top campanhas de lead</h3><p class="nota">Menor custo por lead primeiro, mínimo de 5 leads.</p>${ranking}</section>
+
+  <section aria-labelledby="t-camp" style="display: flex; flex-direction: column; gap: 14px">
+    <h2 id="t-camp">Campanhas</h2>
+    <div class="glass tabela">${d.campanhas.length ? `<table><thead><tr><th>Campanha</th><th>Objetivo</th><th>Investimento</th><th class="num">Leads</th><th class="num">CPL</th><th class="num">CTR</th><th class="num">CPM</th><th class="num">Frequência</th><th class="num">MQL</th><th class="num">Reuniões</th><th class="num">Vendas</th><th class="num">Custo/MQL</th></tr></thead><tbody>${linhas}</tbody></table>` : '<p class="vazio">Sem campanhas do Contador CEO no período.</p>'}</div>
+    <p class="nota">Frequência acima de 3: criativo cansado. Campanha em aprendizado: não mexer em orçamento, público ou criativo.</p>
+  </section>
+
+  ${leituraFim}
+
+  <footer class="nota" style="padding-top: 16px; border-top: 1px solid var(--linha); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px">
+    <p>Fontes: Meta Ads, conta ${esc(d.fontes.conta)} (atualizado ${esc(d.fontes.meta_atualizado || "—")}) · PipeRun, Black Belt e Outliers, origem Mídia Paga (atualizado ${esc(d.fontes.crm_atualizado || "—")})</p>
+    <p>Período: ${dataBR(p.de)} a ${dataBR(p.ate)} · CAC e retorno: últimos 30 dias</p>
+  </footer>`;
+}
+
+async function carregar(periodo) {
+  botoes.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.periodo === periodo)));
+  el.classList.add("carregando");
+  try {
+    const d = await api({ periodo }); DADOS = d; render(d); renderEventos(d);
+  } catch (e) {
+    el.innerHTML = `<p class="erro">Não consegui carregar o relatório: ${esc(e.message)}. Tente de novo em alguns minutos.</p>`;
+  } finally {
+    el.classList.remove("carregando");
+  }
+}
+
+botoes.forEach((b) => b.addEventListener("click", () => carregar(b.dataset.periodo)));
+carregar("ontem");
+
+
+const OBJ_EV = { lead: ["Leads", "#EAF1FD", "#1A4FB0"], venda: ["Vendas", "#ECFDF3", "#067647"], whatsapp: ["WhatsApp", "#E7F8F1", "#0B6B4F"], perfil: ["Perfil", "rgba(2,21,40,.06)", "#3A4A5E"], outro: ["Outro", "rgba(2,21,40,.06)", "#3A4A5E"] };
+const elEv = document.getElementById("eventos");
+let filtroEv = "todos";
+function renderEventos(d) {
+  if (!d || !elEv) return;
+  const q = (document.getElementById("busca").value || "").trim().toLowerCase();
+  const todos = d.eventos || [];
+  const lista = todos.filter((c) => {
+    if (filtroEv === "anomear" && c.nome) return false;
+    if (!["todos", "anomear"].includes(filtroEv) && !c.objetivos.includes(filtroEv)) return false;
+    return !q || `${c.codigo} ${c.prefixo || ""} ${c.nome || ""} ${c.cidade || ""} ${c.campanhas.join(" ")}`.toLowerCase().includes(q);
+  });
+  const hoje = d.periodo.ate;
+  const proximos = todos.filter((c) => c.data_evento && c.data_evento > hoje).sort((a, b) => a.data_evento.localeCompare(b.data_evento));
+  const mx = Math.max(1, ...todos.map((c) => c.investimento));
+  const total = todos.reduce((s, c) => s + c.investimento, 0);
+  const DIAS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+  const cartoes = proximos.length ? proximos.map((c) => { const dt = new Date(c.data_evento + "T12:00:00Z"); const falta = Math.round((Date.parse(c.data_evento) - Date.parse(hoje)) / 864e5);
+    return `<div class="glass cartao" style="flex-direction: row; gap: 14px"><div style="flex: none; width: 58px; padding: 8px 0; border-radius: 14px; background: var(--azul); color: #FFF; display: flex; flex-direction: column; align-items: center"><span style="font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: .85">${DIAS[dt.getUTCDay()]}</span><b style="font-size: 17px">${dataBR(c.data_evento).slice(0, 5)}</b></div><div style="display: flex; flex-direction: column; gap: 6px; min-width: 0"><b style="font-size: 15px; color: var(--marinho)">${esc(c.nome || "A nomear")}</b><p class="nota">${esc(c.cidade || "")}</p><p style="display: flex; gap: 6px; flex-wrap: wrap"><span class="chip neutro mono">${esc(c.codigo)}</span><span class="tag30">faltam ${falta} dias</span></p></div></div>`; }).join("")
+    : '<p class="glass vazio">Nenhum evento futuro com data cadastrada.</p>';
+  const linhas = lista.map((c) => `<tr>
+    <td><span style="display: inline-flex; gap: 6px; align-items: center">${c.prefixo ? `<span style="padding: 2px 7px; border-radius: 6px; background: var(--marinho); color: #FFF; font-size: 11px; font-weight: 800">${esc(c.prefixo)}</span>` : ""}<span class="mono">${esc(c.codigo)}</span></span></td>
+    <td>${c.nome ? `<b style="color: var(--marinho)">${esc(c.nome)}</b>` : '<span class="chip aviso">A nomear</span>'}${c.status === "encerrado" ? ' <span class="chip neutro">ENCERRADO</span>' : ""}
+      ${c.campanhas.length ? `<details style="margin-top: 6px"><summary class="nota" style="cursor: pointer">${c.campanhas.length} campanha${c.campanhas.length > 1 ? "s" : ""}</summary>${c.campanhas.map((n) => `<p class="mono nota" style="margin-top: 4px">${esc(n)}</p>`).join("")}</details>` : ""}</td>
+    <td>${esc(c.cidade || "—")}</td>
+    <td><span style="display: flex; flex-wrap: wrap; gap: 6px">${c.objetivos.map((o) => `<span class="chip" style="background: ${OBJ_EV[o][1]}; color: ${OBJ_EV[o][2]}">${OBJ_EV[o][0]}</span>`).join("") || "—"}</span></td>
+    <td style="min-width: 160px; text-align: right"><b>${brl(c.investimento, 0)}</b><span class="barra" style="margin-top: 6px"><span style="width: ${c.investimento / mx * 100}%; margin-left: auto"></span></span></td></tr>`).join("");
+  const filtros = [["todos", "Todos"], ["lead", "Leads"], ["venda", "Vendas"], ["whatsapp", "WhatsApp"], ["anomear", "A nomear"]].map(([v, t]) => `<button type="button" data-filtro="${v}" aria-pressed="${filtroEv === v}">${t}</button>`).join("");
+  elEv.innerHTML = `
+  <section style="display: flex; flex-direction: column; gap: 14px"><h2>Próximos eventos</h2><div class="linha">${cartoes}</div></section>
+  <section class="linha">
+    <div class="glass cartao"><p class="k">Códigos</p><p class="v">${int(todos.length)}</p></div>
+    <div class="glass cartao"><p class="k">Investimento nesses códigos</p><p class="v">${brl(total, 0)}</p><p class="nota">desde o início da coleta</p></div>
+    <div class="glass cartao" style="background: linear-gradient(180deg, rgba(255,244,222,.92), rgba(255,244,222,.7))"><p class="k" style="color: var(--ambar)">Códigos sem nome</p><p class="v" style="color: var(--ambar)">${int(todos.filter((c) => !c.nome).length)}</p><p class="nota">nomeie na tabela CEO PAGO Config (chave eventos_json)</p></div>
+  </section>
+  <section style="display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px"><h2>Mapa de códigos</h2><div class="glass pilulas" role="group" aria-label="Filtro">${filtros}</div></div>
+    <div class="glass tabela">${lista.length ? `<table><thead><tr><th>Código</th><th>Evento ou iniciativa</th><th>Cidade</th><th>Objetivos</th><th class="num">Investimento</th></tr></thead><tbody>${linhas}</tbody></table>` : '<p class="vazio">Nada encontrado com esse filtro.</p>'}</div>
+    <p class="nota">Padrão de nome: [PREFIXO]-[CÓDIGO]-[OBJETIVO]-[NOME]. Código novo aparece aqui sozinho na primeira coleta.</p>
+  </section>
+  ${d.fora_escopo.campanhas ? `<section class="glass cartao"><h3>Fora do relatório: ${int(d.fora_escopo.campanhas)} campanha${d.fora_escopo.campanhas > 1 ? "s" : ""}</h3><p class="nota">Campanhas da conta sem o código CEO no nome (outros produtos).</p></section>` : ""}`;
+}
+let DADOS = null;
+elEv.addEventListener("click", (e) => { const f = e.target.closest("[data-filtro]"); if (f) { filtroEv = f.dataset.filtro; renderEventos(DADOS); } });
+document.getElementById("busca").addEventListener("input", () => renderEventos(DADOS));
+// abas
+document.querySelectorAll("[data-aba]").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-aba]").forEach((x) => x.setAttribute("aria-current", String(x === b)));
+  const ev = b.dataset.aba === "eventos";
+  document.getElementById("aba-relatorio").hidden = ev; document.getElementById("aba-eventos").hidden = !ev;
+}));
+
+</script>
+</body>
+</html>
