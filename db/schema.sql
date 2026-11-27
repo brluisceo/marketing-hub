@@ -220,3 +220,134 @@ CREATE TABLE IF NOT EXISTS posts_pilares (
 );
 REVOKE ALL ON posts_pilares FROM hub_coleta;
 GRANT SELECT, INSERT, UPDATE ON posts_pilares TO hub_site;
+
+-- ============================================================================================
+-- Tráfego pago (Contador CEO). Regras e decisões em docs/trafego-pago-decisoes.md.
+-- O n8n grava (fluxos "[HUB] Meta Ads — ..." e "[HUB] PipeRun — ..."); o site só lê,
+-- menos o resultado preenchido à mão (trafego_resultado_manual) e a configuração (trafego_config).
+-- ============================================================================================
+
+-- Meta Ads: uma linha por anúncio por dia (dia no fuso America/Sao_Paulo). A coleta pede um dia por
+-- consulta (a quebra diária da Meta, time_increment=1, devolve gasto incompleto) e refaz os últimos
+-- 10 dias, porque a Meta corrige os números para trás. Todas as campanhas da conta entram; o agrupamento
+-- por família é feito na leitura (nunca filtrar por uma palavra do nome).
+CREATE TABLE IF NOT EXISTS meta_anuncios_diario (
+  dia               date NOT NULL,
+  ad_id             text NOT NULL,
+  conta_id          text NOT NULL,                  -- 233916409249136
+  campaign_id       text NOT NULL,
+  campaign_name     text NOT NULL,
+  adset_id          text,
+  adset_name        text,
+  ad_name           text,
+  objetivo          text,                           -- objective da Meta (OUTCOME_LEADS, OUTCOME_SALES...)
+  gasto             numeric(12,2) NOT NULL DEFAULT 0,
+  impressoes        integer NOT NULL DEFAULT 0,
+  cliques           integer NOT NULL DEFAULT 0,     -- todos os cliques (CTR "todos")
+  cliques_link      integer NOT NULL DEFAULT 0,     -- inline_link_clicks (CTR do link)
+  visitas_pagina    integer NOT NULL DEFAULT 0,     -- landing_page_view
+  frequencia        numeric(6,2),
+  leads             integer NOT NULL DEFAULT 0,     -- lead (inclui o lead do checkout do Eduzz)
+  leads_formulario  integer NOT NULL DEFAULT 0,     -- onsite_conversion.lead_grouped (formulário nativo)
+  conversas         integer NOT NULL DEFAULT 0,     -- conversas iniciadas no WhatsApp
+  checkouts         integer NOT NULL DEFAULT 0,     -- omni_initiated_checkout
+  compras           integer NOT NULL DEFAULT 0,     -- omni_purchase (compras no pixel; não é o total de vendas)
+  valor_compras     numeric(14,2) NOT NULL DEFAULT 0,
+  atualizado_em     timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (dia, ad_id)
+);
+CREATE INDEX IF NOT EXISTS meta_anuncios_diario_campanha_idx ON meta_anuncios_diario (campaign_id, dia);
+
+-- Situação e orçamento de cada campanha (lidos a cada coleta). orcamento_mudou_em alimenta o alerta
+-- "orçamento alterado nas últimas 24 horas".
+CREATE TABLE IF NOT EXISTS meta_campanhas (
+  campaign_id         text PRIMARY KEY,
+  conta_id            text NOT NULL,
+  nome                text NOT NULL,
+  status              text,                         -- effective_status da Meta (ACTIVE, PAUSED...)
+  orcamento_dia       numeric(12,2),                -- em reais (a Meta devolve em centavos)
+  orcamento_anterior  numeric(12,2),
+  orcamento_mudou_em  timestamptz,
+  atualizado_em       timestamptz NOT NULL DEFAULT now()
+);
+
+-- PipeRun: oportunidades dos funis do Contador CEO. time: black_belt (Funil Closer 101027) ou
+-- outliers (Funil Elite 108929, 108930, 108931). Campanha, perfil e faturamento vêm das notas da
+-- integração do Meta Lead Ads no histórico do card. origem_grupo segue os grupos do PipeRun
+-- (36347 orgânico, 36348 pago, 36349 outbound, 36350 relacionamento, 36351 receptivo, 43897 eventos).
+CREATE TABLE IF NOT EXISTS crm_oportunidades (
+  deal_id        bigint PRIMARY KEY,
+  titulo         text,
+  funil_id       integer NOT NULL,
+  time           text NOT NULL CHECK (time IN ('black_belt', 'outliers')),
+  etapa_id       integer,
+  etapa_nome     text,
+  status         smallint,                          -- 0 aberta, 1 ganha, 2 perdida
+  criado_em      timestamptz,
+  fechado_em     timestamptz,
+  origem_id      integer,
+  origem_nome    text,
+  origem_grupo   text,
+  campanha       text,
+  conjunto       text,
+  anuncio        text,
+  utm_source     text,
+  utm_medium     text,
+  utm_campaign   text,
+  dono           text,                              -- responsável pelo card (vendedor)
+  motivo_id      integer,
+  motivo_nome    text,
+  valor_mrr      numeric(14,2) NOT NULL DEFAULT 0,
+  valor_setup    numeric(14,2) NOT NULL DEFAULT 0,
+  perfil         text,                              -- resposta "dono ou sócio" do formulário (MQL)
+  faturamento    text,
+  agendada_em    timestamptz,                       -- primeira entrada em Reunião Agendada
+  realizada_em   timestamptz,                       -- primeira entrada em Reunião Realizada
+  noshow_em      timestamptz,
+  atualizado_em  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS crm_oportunidades_criado_idx ON crm_oportunidades (criado_em);
+CREATE INDEX IF NOT EXISTS crm_oportunidades_abertas_idx ON crm_oportunidades (deal_id) WHERE status = 0;
+
+-- Movimentos em tempo real: o PipeRun avisa o n8n (automação de webhook) quando um card entra em
+-- reunião agendada, confirmada, realizada, no-show ou venda. Base da tela "Ao vivo".
+CREATE TABLE IF NOT EXISTS crm_movimentos (
+  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  chave       text NOT NULL UNIQUE,                 -- deal|etapa|minuto: evita duplicar o mesmo aviso
+  em          timestamptz NOT NULL DEFAULT now(),
+  tipo        text NOT NULL CHECK (tipo IN ('agendada', 'confirmada', 'realizada', 'noshow', 'venda')),
+  deal_id     bigint NOT NULL,
+  funil_id    integer NOT NULL,
+  etapa_id    integer,
+  etapa_nome  text,
+  titulo      text,
+  dono        text
+);
+CREATE INDEX IF NOT EXISTS crm_movimentos_em_idx ON crm_movimentos (em DESC);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON meta_anuncios_diario, meta_campanhas, crm_oportunidades, crm_movimentos TO hub_coleta;
+GRANT SELECT ON meta_anuncios_diario, meta_campanhas, crm_oportunidades, crm_movimentos TO hub_site;
+
+-- Configuração do módulo (metas e nomes), editada no site por owner/admin.
+-- Chaves: leads_dia, custo_reuniao, regra_valor (ps ou ps_mais_mrr), familias_json, eventos_json.
+CREATE TABLE IF NOT EXISTS trafego_config (
+  chave          text PRIMARY KEY,
+  valor          text,
+  atualizado_por text,
+  atualizado_em  timestamptz NOT NULL DEFAULT now()
+);
+REVOKE ALL ON trafego_config FROM hub_coleta;
+GRANT SELECT, INSERT, UPDATE ON trafego_config TO hub_site;
+
+-- Resultado geral preenchido à mão (a Meta não tem esses números): por período, chave "aaaa-mm-dd_aaaa-mm-dd".
+CREATE TABLE IF NOT EXISTS trafego_resultado_manual (
+  chave          text PRIMARY KEY CHECK (chave ~ '^\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}$'),
+  vendas_total   integer,
+  liquido_total  numeric(14,2),
+  vendas_mkt     integer,
+  liquido_mkt    numeric(14,2),
+  preenchido_por text,
+  atualizado_em  timestamptz NOT NULL DEFAULT now()
+);
+REVOKE ALL ON trafego_resultado_manual FROM hub_coleta;
+GRANT SELECT, INSERT, UPDATE ON trafego_resultado_manual TO hub_site;
