@@ -132,3 +132,12 @@ export function mesVizinho(ym: string, passo: number): string {
   const d = new Date(Date.UTC(a, m - 1 + passo, 1));
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 }
+
+// Tamanho de arquivo: "783 MB", "1,2 GB".
+export function tamanhoArquivo(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined || Number.isNaN(bytes)) return '—';
+  const mb = bytes / 1024 / 1024;
+  if (mb >= 1024) return (mb / 1024).toFixed(1).replace('.', ',') + ' GB';
+  if (mb >= 10) return nf.format(Math.round(mb)) + ' MB';
+  return mb.toFixed(1).replace('.', ',') + ' MB';
+}

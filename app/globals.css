@@ -649,6 +649,17 @@ body:has(.janela) { overflow: hidden; }
 .pilar-form select { flex: 1 1 auto; min-width: 0; font: inherit; min-height: 32px; padding: 0 8px; border: 1px solid #d2d2d7; border-radius: 7px; background: #fff; color: var(--text); }
 @media (pointer: coarse) { .pilar-form select { font-size: 16px; min-height: 40px; } }
 
+/* Compactar vídeo: área de soltar o arquivo e lista dos vídeos */
+.compactar { max-width: 960px; }
+.compactar-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 160px; padding: 24px; border: 1.5px dashed #c7c7cc; border-radius: var(--radius); background: var(--bg-soft); text-align: center; cursor: pointer; }
+.compactar-area:hover, .compactar-area.is-arrastando { border-color: var(--accent); background: #f2f7fd; }
+.compactar-area.is-bloqueado { cursor: default; border-color: var(--line); background: var(--bg-soft); }
+.compactar-area:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.compactar-meter { width: min(360px, 100%); }
+.compactar-nome { display: block; max-width: 320px; }
+.compactar-andamento { display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
+.compactar-erro { color: var(--down); }
+
 /* ===== Telas menores =====
    ≥ 1000 px (computador, notebook, iPad deitado): menu lateral fixo.
    < 1000 px (tablet em pé, celular): barra no topo com botão "Menu" que abre o menu como gaveta.

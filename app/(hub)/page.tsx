@@ -14,6 +14,7 @@ const Icone = {
   sites: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18" /></svg>,
   calendario: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="3" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>,
   entregaveis: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z" /><path d="m3 8 9 5 9-5M12 13v8" /></svg>,
+  video: <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2.5" y="5" width="14" height="14" rx="2.5" /><path d="m16.5 10 5-3v10l-5-3" /><path d="m7 10 2.5 2.5L7 15" /></svg>,
   busca: <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
 };
 
@@ -182,6 +183,9 @@ export default async function Inicio() {
               </CardModulo>
               <CardModulo cor="roxo" icone={Icone.entregaveis} titulo="Entregáveis" status="em_breve">
                 <p className="hub-texto">As peças da equipe: o que foi pedido, o que está em produção e o que já foi entregue.</p>
+              </CardModulo>
+              <CardModulo cor="azul" icone={Icone.video} titulo="Compactar vídeo" status="ativo" href="/compactar">
+                <p className="hub-texto">Deixa o vídeo bem menor sem perder qualidade visível, em MP4 que abre em qualquer aparelho.</p>
               </CardModulo>
             </div>
           </div>
